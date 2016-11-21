@@ -77,6 +77,7 @@ export default class FormRadio extends Input {
                 selectedValue={typeof this.state.values[this.props.name] !== 'undefined' ? this.state.values[this.props.name] : this.props.selectedValue}
                 onValueChange={this.handleChange}
                 style={styles.picker || this.props.pickerStyle}
+                ref={this.handleRef}
             >
                 {this.props.options.map((item, optionIndex) => (
                     <Picker.Item

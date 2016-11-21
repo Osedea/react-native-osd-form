@@ -47,6 +47,7 @@ export default class FormSwitch extends Input {
                 <TouchableHighlight
                     underlayColor={colors.touchableUnderlayColor}
                     onPress={this.handleSwitchChange}
+                    ref={this.handleRef}
                 >
                     {this.state.value
                         ? <Text style={styles.onOffText}>{'True'}</Text>

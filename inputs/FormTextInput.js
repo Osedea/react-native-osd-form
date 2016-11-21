@@ -85,8 +85,8 @@ export default class FormTextInput extends Input {
     };
 
     static defaultProps = {
-        underlineColorAndroid: 'transparent',
         enablesReturnKeyAutomatically: true,
+        underlineColorAndroid: 'transparent',
     };
 
     constructor(props) {
@@ -94,8 +94,8 @@ export default class FormTextInput extends Input {
 
         this.state = {
             ...super.state,
-            secureTextEntry: props.type === 'password',
             clearButtonMode: props.type === 'password' ? 'never' : 'while-editing',
+            secureTextEntry: props.type === 'password',
         };
     }
 
@@ -148,6 +148,27 @@ export default class FormTextInput extends Input {
         }
     };
 
+    getMaxLength = () => {
+        if (this.props.maxLength) {
+            return this.props.maxLength;
+        }
+
+        switch (this.props.type) {
+            // case 'color':
+            case 'email':
+                return 255;
+            case 'tel':
+                return 15; // https://en.wikipedia.org/wiki/Telephone_numbering_plan
+            case 'number':
+            case 'password':
+            case 'text':
+            case 'url':
+            case 'word':
+            default:
+                return null;
+        }
+    };
+
     getPlaceholder = () => {
         if (this.props.placeholder) {
             return this.props.placeholder;
@@ -173,27 +194,6 @@ export default class FormTextInput extends Input {
         }
     }
 
-    getMaxLength = () => {
-        if (this.props.maxLength) {
-            return this.props.maxLength;
-        }
-
-        switch (this.props.type) {
-            // case 'color':
-            case 'email':
-                return 255;
-            case 'tel':
-                return 15; // https://en.wikipedia.org/wiki/Telephone_numbering_plan
-            case 'number':
-            case 'password':
-            case 'text':
-            case 'url':
-            case 'word':
-            default:
-                return null;
-        }
-    };
-
     getReturnKeyType = () => {
         if (this.props.returnKeyType) {
             return this.props.returnKeyType;
@@ -212,12 +212,16 @@ export default class FormTextInput extends Input {
         this.setState({ secureTextEntry: !this.state.secureTextEntry });
     }
 
-    handleRef = (component) => {
-        this.props.onRef(component, this.props.name);
+    handleSubmitEditing = () => {
+        this.handleInputEnd();
     }
 
-    handleSubmitEditing = () => {
-        this.props.onSubmitEditing(this.props);
+    handleFocus = () => {
+        this.props.onFocus(this.props);
+    }
+
+    handleBlur = () => {
+        this.handleValidation();
     }
 
     handleInputChange = (event) => {
@@ -237,17 +241,27 @@ export default class FormTextInput extends Input {
 
         const input = (
             <TextInputComponent
-                key={`${this.props.name}-input`}
                 {...this.props}
                 autoCapitalize={this.getAutoCapitalize()}
                 autoCorrect={this.getAutoCorrect()}
+                clearButtonMode={this.state.clearButtonMode}
                 editable={!this.props.disabled}
+                key={`${this.props.name}-input`}
                 keyboardType={this.getKeyboardType()}
+                maxLength={this.getMaxLength()}
                 multiline={this.props.type === 'textarea'}
+                onBlur={this.handleBlur}
+                onChange={this.handleInputChange}
+                onFocus={this.handleFocus}
                 onSubmitEditing={this.props.type !== 'textarea'
-                    ? this.onInputEnd
+                    ? this.handleSubmitEditing
                     : null
                 }
+                placeholder={this.getPlaceholder()}
+                placeholderTextColor={placeholderTextColor}
+                ref={this.handleRef}
+                returnKeyType={this.getReturnKeyType()}
+                secureTextEntry={this.state.secureTextEntry}
                 style={[
                     styles.input,
                     this.props.type === 'textarea'
@@ -261,15 +275,6 @@ export default class FormTextInput extends Input {
                         ? this.props.errorStyle
                         : null,
                 ]}
-                onChange={this.handleInputChange}
-                onBlur={this.handleInputEnd}
-                placeholder={this.getPlaceholder()}
-                placeholderTextColor={placeholderTextColor}
-                ref={this.handleRef}
-                returnKeyType={this.getReturnKeyType()}
-                secureTextEntry={this.state.secureTextEntry}
-                maxLength={this.getMaxLength()}
-                clearButtonMode={this.state.clearButtonMode}
             />
         );
 
@@ -280,10 +285,11 @@ export default class FormTextInput extends Input {
             icon = (
                 <TouchableHighlight
                     onPress={this.handleSecureTextEntryChange}
-                    underlayColor={colors.touchableUnderlayColor}
                     style={[styles.inputTouchableIconStyle]}
+                    underlayColor={'transparent'}
                 >
                     <Image
+                        source={this.props.inputIcon}
                         style={[
                             styles.inputIconStyle,
                             this.props.type === 'password' && (
@@ -293,7 +299,6 @@ export default class FormTextInput extends Input {
                                 ? styles.inactivePasswordIcon
                                 : {},
                         ]}
-                        source={this.props.inputIcon}
                     />
                 </TouchableHighlight>
             );
@@ -309,7 +314,6 @@ export default class FormTextInput extends Input {
                             ? styles.inactivePasswordIcon
                             : {},
                     ]}
-                    color={this.props.activityIndicatorStyle}
                 />
             );
         } else if (this.props.type === 'password' && !this.props.inputIcon) {
@@ -317,17 +321,17 @@ export default class FormTextInput extends Input {
             icon = (
                 <TouchableHighlight
                     onPress={this.handleSecureTextEntryChange}
-                    underlayColor={colors.touchableUnderlayColor}
                     style={[styles.inputTouchableIconStyle]}
+                    underlayColor={'transparent'}
                 >
                     <Image
+                        source={require('../images/show-password.png')}
                         style={[
                             styles.inputIconStyle,
                             !this.state.secureTextEntry
                                 ? styles.inactivePasswordIcon
                                 : {},
                         ]}
-                        source={require('../images/show-password.png')}
                     />
                 </TouchableHighlight>
             );

@@ -10,6 +10,7 @@ import Button from 'react-native-osd-simple-button';
 
 import Error from './Error';
 import colors from './colors';
+import { validateInput } from './validation';
 
 const styles = StyleSheet.create({
     label: {
@@ -61,12 +62,21 @@ export default class Input extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({ value: nextProps.value });
+        if (nextProps.hasOwnProperty('value')) {
+            this.setState({ value: nextProps.value });
+        }
     }
 
-    handleInputEnd = () => {
-        if (!this.props.noValidate) {
+    handleValidation = () => {
+        if (!this.props.noValidate && this.state.value) {
             this.validateInput(this.state.value);
+        }
+    };
+
+    handleInputEnd = () => {
+        if (!this.props.onBlur) {
+            // This is an edge case for FormTextInputs
+            this.handleValidation();
         }
 
         if (this.props.onInputEnd) {
@@ -96,47 +106,29 @@ export default class Input extends Component {
         }
     };
 
-    validateInput = (valueToCheck = '') => {
-        let value = typeof valueToCheck === 'string' ? valueToCheck.trim() : valueToCheck;
+    handleRef = (component) => {
+        component.validateInput = this.validateInput;
 
-        if (typeof valueToCheck === 'object' && valueToCheck.nativeEvent) {
-            value = valueToCheck.nativeEvent.text
-                ? valueToCheck.nativeEvent.text
-                : this.state.value; // On Android, onBlur doesn't give the value of the field
+        this.props.onRef(component, this.props.name);
+    }
+
+    validateInput = (valueToCheck) => {
+        const { error, value } = validateInput(this.props, valueToCheck);
+
+        if (this.props.onFormChange) {
+            this.props.onFormChange({
+                name: this.props.name,
+                value,
+                error,
+            });
         }
 
-        try {
-            let isInputValid = false;
-            let error = null;
+        this.setState({ error });
 
-            if (this.props.validationFunctions) {
-                this.props.validationFunctions.forEach((validationFunction, index) => {
-                    if (typeof validationFunction(value) === 'function') {
-                        isInputValid = validationFunction(value)(this.state);
-                    } else {
-                        isInputValid = validationFunction(value);
-                    }
-
-                    if (!isInputValid) {
-                        error = this.props.validationErrorMessages[index];
-
-                        return false;
-                    }
-                });
-
-                if (this.props.onFormChange) {
-                    this.props.onFormChange({
-                        name: this.props.name,
-                        value,
-                        error,
-                    });
-                }
-
-                this.setState({ error });
-            }
-        } catch (error) {
-            console.error('Error in validation', error.message);
-        }
+        return {
+            error,
+            value,
+        };
     }
 
     // createInputFocusHandler = (input) => () => {

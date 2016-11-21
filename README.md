@@ -1,5 +1,7 @@
 # react-native-osd-form
 
+# THIS IS A WORK IN PROGRESS
+
 Osedea's throw on how to do Forms easily in react-native
 
 ## Features

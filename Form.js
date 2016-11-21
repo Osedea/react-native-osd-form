@@ -5,7 +5,7 @@ import {
     TextInput,
     View,
 } from 'react-native';
-import { includes, findIndex, forEach, reduce } from 'lodash';
+import { includes, findIndex, reduce } from 'lodash';
 
 import colors from './colors';
 import Error from './Error';
@@ -21,6 +21,7 @@ import FormRangeInput from './inputs/FormRangeInput';
 import FormSeparator from './inputs/FormSeparator';
 import FormSwitch from './inputs/FormSwitch';
 import FormTextInput from './inputs/FormTextInput';
+import { validateInput } from './validation';
 
 const HIDDEN_TYPE = 'hidden';
 
@@ -29,19 +30,19 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     globalError: {
-        color: colors.black,
+        color: colors.white,
     },
     globalErrorContainer: {
         backgroundColor: colors.transparentRed,
+        marginBottom: 5,
     },
 });
 
 // Types that we can do something on when hitting NEXT on the previous field
 const interactableTypes = [
-    ...FormTextInput.acceptedTypes,       // Focus
-    ...FormButton.acceptedTypes,     // Execute the onPress method
-    'image',                // Open the picker
-    'file',                 // Open the picker
+    ...FormTextInput.acceptedTypes,         // Focus
+    ...FormButton.acceptedTypes,            // Execute the onPress method
+    ...FormMediaInput.acceptedTypes,        // Open the picker
 ];
 
 export default class Form extends Component {
@@ -55,7 +56,7 @@ export default class Form extends Component {
         // Set `displayErrorsGlobally` to true to have the errors displaying
         // at the bottom of the Form component and not on each of the invalid inputs
         displayErrorsGlobally: React.PropTypes.bool,
-        formGroups: React.PropTypes.arrayOf(FormGroup),
+        formGroups: React.PropTypes.arrayOf(React.PropTypes.shape(FormGroup.propTypes)),
         globalErrorContainerStyle: View.propTypes.style,
         globalErrorStyle: Text.propTypes.style,
         globalStyles: React.PropTypes.shape({
@@ -125,7 +126,7 @@ export default class Form extends Component {
 
         this.state = {
             isValid: false,
-            formErrors: {},
+            errors: {},
             values: this.getInitialValues(this.inputs),
             secureTextEntry: {},
         };
@@ -223,70 +224,89 @@ export default class Form extends Component {
 
     validateAllFields = () => {
         const errors = {};
+        const values = {};
 
-        forEach(this.inputs, (input) => {
-            this.validateInput(input, this.state.values[input.name], errors);
+        this.inputs.forEach((input) => {
+            let result;
+
+            if (this.formRefs[input.name]) {
+                result = this.formRefs[input.name].validateInput(this.state.values[input.name]);
+            } else {
+                result = validateInput(input, this.state.values[input.name]);
+            }
+
+            if (result.error) {
+                errors[input.name] = result.error;
+            }
+            values[input.name] = result.value;
         });
 
-        return this.checkErrors();
+        const isValid = Object.keys(errors).length === 0;
+
+        this.setState({
+            errors,
+            values,
+            isValid,
+        });
+
+        return isValid;
     }
 
-    onInputEnd = (input) => {
+    handleFocus = (input) => {
+        this.focusedInput = this.formRefs[input.name];
+    }
+
+    handleInputEnd = (input) => {
         const index = findIndex(
             this.inputs,
-            input
+            (inputConsidered) => (input.name === inputConsidered.name)
         );
         const nextInput = this.inputs[index + 1];
-        let func = null;
 
         if (!nextInput) {
-            return func;
+            return;
         }
 
         if (includes(interactableTypes, nextInput.type)) {
             if (includes(FormTextInput.acceptedTypes, nextInput.type)) {
-                func = () => {
-                    if (
-                        this.formRefs[nextInput.name]
-                        && (
-                            (
-                                nextInput.hasOwnProperty('editable')
-                                && nextInput.editable
-                            )
-                            || (
-                                nextInput.hasOwnProperty('disabled')
-                                && !nextInput.disabled
-                            )
-                            || (
-                                !nextInput.hasOwnProperty('editable')
-                                && !nextInput.hasOwnProperty('disabled')
-                            )
+                if (
+                    this.formRefs[nextInput.name]
+                    && (
+                        (
+                            nextInput.hasOwnProperty('editable')
+                            && nextInput.editable
                         )
-                        && !nextInput.nextSkip
-                    ) {
-                        this.formRefs[nextInput.name].focus();
-                    }
-                };
+                        || (
+                            nextInput.hasOwnProperty('disabled')
+                            && !nextInput.disabled
+                        )
+                        || (
+                            !nextInput.hasOwnProperty('editable')
+                            && !nextInput.hasOwnProperty('disabled')
+                        )
+                    )
+                    && !nextInput.nextSkip
+                ) {
+                    this.formRefs[nextInput.name].focus();
+                }
             } else if (nextInput.nextSkip) {
-                func = this.createSubmitEditingHandler(nextInput);
+                this.handleInputEnd(nextInput);
             } else if (nextInput.type === 'submit') {
-                // ! \\ Call two times when the arrow is clicked on android
-                func = this.handleSubmit;
+                // ! \\ Called two times when the arrow is clicked on android
+                this.handleSubmit();
             } else if (nextInput.type === 'button') {
-                func = nextInput.onPress;
+                nextInput.onPress();
             } else if (nextInput.type === 'image' || nextInput.type === 'video') {
                 // TODO Open image picker
-                func = () => console.log('Open image/video picker');
+                console.log('Open image/video picker');
             } else {
-                func = () => {
-                    if (this.formRefs[input.name]) {
-                        this.formRefs[input.name].blur();
-                    }
-                };
+                if (this.formRefs[input.name]) {
+                    this.formRefs[input.name].blur();
+                }
             }
         }
 
-        return func;
+        return true;
     }
 
     handleChange = (changeInput) => {
@@ -307,18 +327,16 @@ export default class Form extends Component {
     }
 
     handleSubmit = () => {
-        console.log(this.state.values);
         if (this.focusedInput) {
             this.focusedInput.blur();
         }
 
-        if (this.validateAllFields()) {
+        if (this.validateAllFields() && this.props.onSubmit) {
             this.props.onSubmit(this.state.values);
         }
     };
 
     render() {
-        console.log(this.formRefs);
         return (
             <View
                 style={[
@@ -330,25 +348,31 @@ export default class Form extends Component {
                     ? this.props.formGroups.map((formGroup, formGroupsIndex) => (
                         <FormGroup
                             {...formGroup}
+                            displayErrorsGlobally={this.props.displayErrorsGlobally}
                             globalStyles={this.props.globalStyles}
                             noValidate={this.props.noValidate}
                             onChange={this.handleChange}
                             key={`formGroup-${formGroupsIndex}`}
                             onRef={this.handleRef}
-                            onInputEnd={this.onInputEnd}
+                            onInputEnd={this.handleInputEnd}
+                            onFocus={this.handleFocus}
+                            onSubmit={this.handleSubmit}
                         />
                     ))
                     : <FormGroup
+                        displayErrorsGlobally={this.props.displayErrorsGlobally}
                         inputs={this.props.inputs}
                         globalStyles={this.props.globalStyles}
                         noValidate={this.props.noValidate}
                         onChange={this.handleChange}
                         onRef={this.handleRef}
-                        onInputEnd={this.onInputEnd}
+                        onInputEnd={this.handleInputEnd}
+                        onFocus={this.handleFocus}
+                        onSubmit={this.handleSubmit}
                     />
                 }
                 {this.props.displayErrorsGlobally
-                    ? this.state.formErrors.map((error, index) => (
+                    ? Object.values(this.state.errors).map((error) => (
                         <Error
                             style={[
                                 styles.globalError,
@@ -359,7 +383,7 @@ export default class Form extends Component {
                                 this.props.globalErrorContainerStyle,
                             ]}
                             error={error}
-                            key={`error-${index}`}
+                            key={`error-${error}`}
                         />
                     ))
                     : null

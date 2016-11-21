@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
 import {
     StyleSheet,
 } from 'react-native';
 import Checkbox from 'react-native-checkbox';
 
-import Input from '../Input';
 import colors from '../colors';
 
 const styles = StyleSheet.create({
@@ -22,50 +21,36 @@ const styles = StyleSheet.create({
     },
 });
 
-export default class FormCheckbox extends Input {
-    static type = 'checkbox';
-
-    static propTypes = {
-        checkboxLabel: React.PropTypes.string,
-        type: React.PropTypes.oneOf(['checkbox']),
-        ...Input.propTypes,
-    };
+export default class FormCheckbox extends Component {
+    static propTypes = Checkbox.propTypes;
 
     static defaultProps = {
         checkedImage: require('../images/checkbox-checked.png'),
         uncheckedImage: require('../images/checkbox-unchecked.png'),
     };
 
-    handleCheckboxChange = (value) => {
-        this.handleChange(value);
-        this.handleInputEnd();
-    }
-
     render() {
         const CheckBoxComponent = this.props.component ? this.props.component : Checkbox;
 
-        return super.render(
+        return (
             <CheckBoxComponent
                 {...this.props}
-                containerStyle={[
+                containerStyle={StyleSheet.flatten([
                     styles.checkboxContainerStyle,
                     this.props.globalStyles
                         ? this.props.globalStyles.checkboxContainerStyle
                         : null,
                     this.props.containerStyle,
-                ]}
-                onChange={this.handleCheckboxChange}
+                ])}
                 checkboxStyle={styles.checkboxBoxStyle}
-                checked={this.state.value || this.props.checked}
-                label={this.props.checkboxLabel}
-                labelContainerStyle={[
+                labelContainerStyle={StyleSheet.flatten([
                     styles.checkboxLabelContainer,
                     this.props.labelContainerStyle,
-                ]}
-                labelStyle={[
+                ])}
+                labelStyle={StyleSheet.flatten([
                     styles.checkboxLabel,
                     this.props.labelStyle,
-                ]}
+                ])}
                 underlayColor={colors.touchableUnderlayColor}
             />
         );

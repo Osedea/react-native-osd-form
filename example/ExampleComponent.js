@@ -63,15 +63,15 @@ export default class Example extends Component {
                             label: 'Choose some stuff',
                             options: [
                                 {
-                                    checkboxLabel: 'Item 1',
+                                    label: 'Item 1',
                                     value: 'item-1',
                                 },
                                 {
-                                    checkboxLabel: 'Item 2',
+                                    label: 'Item 2',
                                     value: 'item-2',
                                 },
                                 {
-                                    checkboxLabel: 'Item 3',
+                                    label: 'Item 3',
                                     value: 'item-3',
                                 },
                             ],
@@ -99,6 +99,45 @@ export default class Example extends Component {
                     ]}
                 />
                 <Form
+                    formGroups={[
+                        {
+                            inputs: [
+                                {
+                                    type: 'email',
+                                    name: 'email',
+                                    label: 'Email',
+                                    validationFunctions: [
+                                        this.validateEmail,
+                                    ],
+                                    validationErrorMessages: [
+                                        'Email is not valid',
+                                    ],
+                                },
+                                {
+                                    type: 'password',
+                                    name: 'password',
+                                    label: 'Password',
+                                    validationFunctions: [
+                                        this.validatePassword,
+                                    ],
+                                    validationErrorMessages: [
+                                        'Password is not valid, it should have at least 8 characters',
+                                    ],
+                                },
+                            ],
+                        },
+                        {
+                            inputs: [
+                                {
+                                    type: 'submit',
+                                    text: 'Send',
+                                },
+                            ],
+                        },
+                    ]}
+                />
+                <Form
+                    displayErrorsGlobally
                     formGroups={[
                         {
                             inputs: [

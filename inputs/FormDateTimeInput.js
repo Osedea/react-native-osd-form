@@ -28,6 +28,7 @@ export default class FormDateTimeInput extends Input {
                 date={this.state.value}
                 mode={this.props.type}
                 onChange={this.handleDateChange}
+                ref={this.handleRef}
             />
         );
     }

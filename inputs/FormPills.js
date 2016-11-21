@@ -71,6 +71,7 @@ export default class FormPills extends Input {
                                 ]}
                                 underlayColor={item.underlayColor || colors.touchableUnderlayColor}
                                 onPress={this.createPillsChangeHandler(item)}
+                                ref={this.handleRef}
                             >
                                 <View>
                                     <Text

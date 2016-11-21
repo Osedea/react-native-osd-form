@@ -26,6 +26,10 @@ export default class Error extends Component {
     };
 
     render() {
+        if (!this.props.error) {
+            return null;
+        }
+
         return (
             <View
                 style={[

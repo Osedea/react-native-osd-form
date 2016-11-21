@@ -35,9 +35,9 @@ export default class FormButton extends Component {
         },
     };
 
-    handlePress = () => {
+    createPressHandler = () => {
         if (this.props.type === 'submit') {
-            return this.handleSubmit;
+            return this.props.onSubmit;
         } else {
             return this.props.onPress;
         }
@@ -53,7 +53,7 @@ export default class FormButton extends Component {
                     styles.container,
                     this.props.containerStyle,
                 ]}
-                onPress={this.handlePress()}
+                onPress={this.createPressHandler()}
             />
         );
     }

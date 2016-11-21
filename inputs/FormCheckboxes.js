@@ -46,30 +46,34 @@ export default class FormCheckboxes extends Input {
 
     render() {
         return super.render(
-            <View style={this.props.containerStyle}>
+            <View
+                style={this.props.containerStyle}
+                ref={this.handleRef}
+            >
                 {this.props.options.map((item, optionIndex) => (
                     <FormCheckbox
+                        {...item}
                         key={`${this.props.name}-option-${optionIndex}`}
-                        label={item.label}
-                        checkboxLabel={item.checkboxLabel}
-                        labelBefore={item.labelBefore}
                         labelContainerStyle={[
-                            styles.checkboxLabelContainer,
                             this.props.labelContainerStyle,
+                            item.labelContainerStyle,
                         ]}
                         labelStyle={[
-                            styles.checkboxLabel,
                             this.props.labelStyle,
+                            item.labelStyle,
                         ]}
                         checked={typeof (item.checked) !== 'undefined'
                             ? item.checked
                             : includes(this.state.value, item.value)
                         }
                         onChange={this.createCheckboxesChangeHandler(item)}
-                        style={[styles.checkbox, this.props.style]}
+                        style={[
+                            this.props.style,
+                            item.style,
+                        ]}
                         checkboxStyle={[
-                            styles.checkboxBoxStyle,
                             this.props.checkboxStyle,
+                            item.checkboxStyle,
                         ]}
                     />
                 ))}

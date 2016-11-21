@@ -21,6 +21,7 @@ export default class FormRangeInput extends Input {
             <Slider
                 {...this.props}
                 onValuesChangeFinish={this.createInputChangeHandler(this.props)}
+                ref={this.handleRef}
             />
         );
     }
