@@ -10,10 +10,11 @@ const styles = StyleSheet.create({
     checkboxContainerStyle: {
         alignItems: 'flex-start',
         flexDirection: 'row',
+        paddingTop: 2,
+        paddingBottom: 2,
     },
-    checkboxLabelContainer: {
-    },
-    checkboxLabel: { color: colors.white },
+    checkboxLabel: { color: colors.black },
+    checkboxLabelContainer: {},
     checkboxBoxStyle: {
         width: 17,
         height: 17,
@@ -22,11 +23,30 @@ const styles = StyleSheet.create({
 });
 
 export default class FormCheckbox extends Component {
-    static propTypes = Checkbox.propTypes;
+    static propTypes = {
+        ...Checkbox.propTypes,
+        checkboxStyle: React.PropTypes.oneOfType([
+            Checkbox.propTypes.checkboxStyle,
+            React.PropTypes.arrayOf(Checkbox.propTypes.checkboxStyle),
+        ]),
+        containerStyle: React.PropTypes.oneOfType([
+            Checkbox.propTypes.containerStyle,
+            React.PropTypes.arrayOf(Checkbox.propTypes.containerStyle),
+        ]),
+        labelContainerStyle: React.PropTypes.oneOfType([
+            Checkbox.propTypes.labelContainerStyle,
+            React.PropTypes.arrayOf(Checkbox.propTypes.labelContainerStyle),
+        ]),
+        labelStyle: React.PropTypes.oneOfType([
+            Checkbox.propTypes.labelStyle,
+            React.PropTypes.arrayOf(Checkbox.propTypes.labelStyle),
+        ]),
+    };
 
     static defaultProps = {
         checkedImage: require('../images/checkbox-checked.png'),
         uncheckedImage: require('../images/checkbox-unchecked.png'),
+        customize: {},
     };
 
     render() {
@@ -37,21 +57,26 @@ export default class FormCheckbox extends Component {
                 {...this.props}
                 containerStyle={StyleSheet.flatten([
                     styles.checkboxContainerStyle,
-                    this.props.globalStyles
-                        ? this.props.globalStyles.checkboxContainerStyle
-                        : null,
+                    this.props.customize.FormCheckboxContainerStyle,
                     this.props.containerStyle,
                 ])}
-                checkboxStyle={styles.checkboxBoxStyle}
+                checkboxStyle={StyleSheet.flatten([
+                    styles.checkboxBoxStyle,
+                    this.props.customize.FormCheckboxCheckboxStyle,
+                    this.props.checkboxStyle,
+                ])}
                 labelContainerStyle={StyleSheet.flatten([
                     styles.checkboxLabelContainer,
+                    this.props.customize.FormCheckboxLabelContainerStyle,
                     this.props.labelContainerStyle,
                 ])}
                 labelStyle={StyleSheet.flatten([
                     styles.checkboxLabel,
+                    this.props.customize.labelStyle,
+                    this.props.customize.FormCheckboxLabelStyle,
                     this.props.labelStyle,
                 ])}
-                underlayColor={colors.touchableUnderlayColor}
+                underlayColor={this.props.underlayColor || this.props.customize.FormCheckboxUnderlayColor || colors.touchableUnderlayColor}
             />
         );
     }

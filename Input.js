@@ -4,10 +4,13 @@ import {
     Platform,
     StyleSheet,
     Text,
+    TouchableWithoutFeedback,
     View,
 } from 'react-native';
 import Button from 'react-native-osd-simple-button';
+import { includes } from 'lodash';
 
+import { formTextInputAcceptedTypes, formRangeInputType } from './inputs/types';
 import Error from './Error';
 import colors from './colors';
 import { validateInput } from './validation';
@@ -16,7 +19,6 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         backgroundColor: colors.transparent,
-        color: colors.white,
         marginBottom: 2,
     },
     inputContainer: {
@@ -24,7 +26,42 @@ const styles = StyleSheet.create({
             ? 10
             : 0,
     },
-    field: {},
+    switchInputContainer: {
+        flexDirection: 'row',
+        padding: 5,
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+    },
+    switchInputLabelContainer: {
+        flex: 1,
+    },
+    modal: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: colors.touchableUnderlayColor,
+    },
+    modalButtonContainerStyle: {},
+    modalContentContainer: {
+        backgroundColor: colors.white,
+        borderRadius: 4,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
+        shadowOffset: {
+            height: 2,
+        },
+        shadowColor: colors.black,
+        shadowOpacity: 0.1,
+        ...(Platform.OS === 'android'
+            ? {
+                borderWidth: 1,
+                borderColor: colors.veryLightGrey,
+            }
+            : {}
+        ),
+    },
 });
 
 export default class Input extends Component {
@@ -35,9 +72,15 @@ export default class Input extends Component {
         errorContainerStyle: View.propTypes.style,
         errorStyle: Text.propTypes.style,
         initialValue: React.PropTypes.any,
-        label: React.PropTypes.string,
-        labelContainerStyle: View.propTypes.style,
-        labelStyle: Text.propTypes.style,
+        inputModalButtonContainerStyle: View.propTypes.style,
+        inputModalButtonStyle: View.propTypes.style,
+        inputModalButtonTextStyle: Text.propTypes.style,
+        insertAfter: React.PropTypes.node,
+        insertBefore: React.PropTypes.node,
+        modalButtonLabel: React.PropTypes.string,
+        modalContentContainerStyle: View.propTypes.style,
+        modalStyle: View.propTypes.style,
+        modalTransparent: React.PropTypes.bool,
         name: React.PropTypes.string.isRequired,
         noValidate: React.PropTypes.bool,
         onChange: React.PropTypes.func,
@@ -50,6 +93,8 @@ export default class Input extends Component {
 
     static defaultProps = {
         validationFunctions: [],
+        customize: {},
+        modalButtonLabel: 'Value =',
     };
 
     constructor(props) {
@@ -58,22 +103,32 @@ export default class Input extends Component {
         this.state = {
             value: props.initialValue || props.value,
             error: null,
+            modalVisible: false,
         };
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.hasOwnProperty('value')) {
-            this.setState({ value: nextProps.value });
+            this.setState({
+                value: nextProps.value,
+                modalVisible: false,
+            });
         }
     }
 
     handleValidation = () => {
-        if (!this.props.noValidate && this.state.value) {
+        if (
+            !this.props.noValidate
+            && this.state.value
+            && this.props.validationErrorMessages
+            && this.props.validationFunctions
+        ) {
             this.validateInput(this.state.value);
         }
     };
 
     handleInputEnd = () => {
+        console.log('handleInputEnd', this.state.value);
         if (!this.props.onBlur) {
             // This is an edge case for FormTextInputs
             this.handleValidation();
@@ -82,9 +137,14 @@ export default class Input extends Component {
         if (this.props.onInputEnd) {
             this.props.onInputEnd(this.props);
         }
+
+        if (this.props.asModal) {
+            this.handleHideModal();
+        }
     };
 
     handleChange = (value) => {
+        console.log('handleChange', value);
         if (this.props.onChange) {
             this.props.onChange(value);
         }
@@ -101,15 +161,21 @@ export default class Input extends Component {
             });
         }
 
-        if (this.props.asModal) {
-            this.handlehideModal();
+        if (
+            !includes(formTextInputAcceptedTypes, this.props.type)
+            && !(this.props.type === formRangeInputType)
+            && this.props.asModal
+        ) {
+            this.handleHideModal();
         }
     };
 
     handleRef = (component) => {
-        component.validateInput = this.validateInput;
+        if (component) {
+            component.validateInput = this.validateInput;
 
-        this.props.onRef(component, this.props.name);
+            this.props.onRef(component, this.props.name);
+        }
     }
 
     validateInput = (valueToCheck) => {
@@ -144,7 +210,7 @@ export default class Input extends Component {
     handleShowModal = () => {
         this.setState({ modalVisible: true });
     };
-    handlehideModal = () => {
+    handleHideModal = () => {
         this.setState({ modalVisible: false });
     };
 
@@ -153,49 +219,28 @@ export default class Input extends Component {
             <View
                 style={[
                     styles.inputContainer,
-                    this.props.globalStyles
-                        ? this.props.globalStyles.containerStyle
+                    this.props.customize.inputContainerStyle,
+                    this.props.type === 'switch'
+                        ? styles.switchInputContainer
                         : null,
                     this.props.containerStyle,
                 ]}
             >
-                {this.props.label
-                    ? <View
-                        style={[
-                            styles.labelContainer,
-                            this.props.globalStyles
-                                ? this.props.globalStyles.labelContainerStyle
-                                : null,
-                            this.props.labelContainerStyle,
-                        ]}
-                    >
-                        <Text
-                            style={[
-                                styles.label,
-                                this.props.globalStyles
-                                    ? this.props.globalStyles.labelStyle
-                                    : null,
-                                this.props.labelStyle,
-                            ]}
-                        >
-                            {this.props.label}
-                        </Text>
-                    </View>
-                    : null
-                }
+                <Label
+                    {...this.props}
+                    handleSwitchCase
+                />
+                {this.props.insertBefore}
                 {input}
+                {this.props.insertAfter}
                 {!this.props.displayErrorsGlobally && this.state.error
                     ? <Error
                         style={[
-                            this.props.globalStyles
-                                ? this.props.globalStyles.errorStyle
-                                : null,
+                            this.props.customize.inputErrorStyle,
                             this.props.errorStyle,
                         ]}
                         containerStyle={[
-                            this.props.globalStyles
-                                ? this.props.globalStyles.errorContainerStyle
-                                : null,
+                            this.props.customize.inputErrorContainerStyle,
                             this.props.errorContainerStyle,
                         ]}
                         error={this.state.error}
@@ -207,17 +252,59 @@ export default class Input extends Component {
 
         if (this.props.asModal) {
             return (
-                <View style={styles.modalButtonContainer}>
+                <View
+                    style={[
+                        styles.modalButtonContainer,
+                        this.props.customize.inputModalButtonContainerStyle,
+                        this.props.inputModalButtonContainerStyle,
+                    ]}
+                >
+                    <Label {...this.props} />
                     <Button
-                        containerStyle={styles.field}
+                        containerStyle={[
+                            styles.modalButtonContainerStyle,
+                            this.props.customize.inputModalButtonStyle,
+                            this.props.inputModalButtonStyle,
+                        ]}
                         onPress={this.handleShowModal}
                     >
-                        <Text>{`Value: ${this.state.value}`}</Text>
+                        <Text
+                            style={[
+                                this.props.customize.inputModalButtonTextStyle,
+                                this.props.inputModalButtonTextStyle,
+                            ]}
+                        >
+                            {`${this.props.modalButtonLabel} ${this.props.options.find((option) => option.value === this.state.value).label}`}
+                        </Text>
                     </Button>
                     <Modal
                         visible={this.state.modalVisible}
+                        transparent={this.props.modalTransparent || this.props.customize.modalTransparent || true}
                     >
-                        {content}
+                        <TouchableWithoutFeedback
+                            onPress={this.handleHideModal}
+                        >
+                            <View
+                                style={[
+                                    styles.modal,
+                                    this.props.customize.modalStyle,
+                                    this.props.modalStyle,
+                                ]}
+                            >
+                                {/* Hack to make the children touchable */}
+                                <TouchableWithoutFeedback>
+                                    <View
+                                        style={[
+                                            styles.modalContentContainer,
+                                            this.props.customize.modalContentContainerStyle,
+                                            this.props.modalContentContainerStyle,
+                                        ]}
+                                    >
+                                        {content}
+                                    </View>
+                                </TouchableWithoutFeedback>
+                            </View>
+                        </TouchableWithoutFeedback>
                     </Modal>
                 </View>
             );
@@ -226,3 +313,37 @@ export default class Input extends Component {
         return content;
     }
 }
+
+const Label = (props) => (
+    props.label
+        ? <View
+            style={[
+                styles.labelContainer,
+                props.customize.inputLabelContainerStyle,
+                props.type === 'switch' && props.handleSwitchCase
+                    ? styles.switchInputLabelContainer
+                    : null,
+                props.labelContainerStyle,
+            ]}
+        >
+            <Text
+                style={[
+                    styles.label,
+                    props.customize.inputLabelStyle,
+                    props.labelStyle,
+                ]}
+            >
+                {props.label}
+            </Text>
+        </View>
+        : null
+);
+
+Label.propTypes = {
+    customize: React.PropTypes.object,
+    handleSwitchCase: React.PropTypes.bool,
+    label: React.PropTypes.string,
+    labelContainerStyle: View.propTypes.style,
+    labelStyle: Text.propTypes.style,
+    type: React.PropTypes.string,
+};

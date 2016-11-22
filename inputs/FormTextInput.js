@@ -3,13 +3,13 @@ import {
     Image,
     Platform,
     StyleSheet,
-    Text,
     TextInput,
     TouchableHighlight,
     View,
 } from 'react-native';
 import colors from '../colors';
 import Input from '../Input';
+import { formTextInputAcceptedTypes } from './types';
 
 const styles = StyleSheet.create({
     input: {
@@ -61,25 +61,14 @@ const styles = StyleSheet.create({
 });
 
 export default class FormTextInput extends Input {
-    static acceptedTypes = [
-        'email',
-        'number',
-        'password',
-        'tel',
-        'text',
-        'textarea',
-        'url',
-        'word',
-    ];
+    static acceptedTypes = formTextInputAcceptedTypes;
 
     static propTypes = {
         disabled: React.PropTypes.bool,
         inputContainerStyle: View.propTypes.style,
         isLastTextInput: React.PropTypes.bool,
-        label: React.PropTypes.string,
-        labelStyle: Text.propTypes.style,
         minHeight: React.PropTypes.number, // If multiline is true
-        type: React.PropTypes.oneOf(this.acceptedTypes),
+        type: React.PropTypes.oneOf(FormTextInput.acceptedTypes),
         ...TextInput.propTypes,
         ...Input.propTypes,
     };
@@ -87,6 +76,7 @@ export default class FormTextInput extends Input {
     static defaultProps = {
         enablesReturnKeyAutomatically: true,
         underlineColorAndroid: 'transparent',
+        customize: {},
     };
 
     constructor(props) {
@@ -230,10 +220,7 @@ export default class FormTextInput extends Input {
 
     render() {
         const TextInputComponent = this.props.component ? this.props.component : TextInput;
-        let placeholderTextColor = this.props.globalStyles
-            ? this.props.globalStyles.placeholderTextColor
-            : colors.lightGrey
-        ;
+        let placeholderTextColor = this.props.customize.FormTextInputPlaceholderTextColor || colors.lightGrey;
 
         if (this.props.placeholderTextColor) {
             placeholderTextColor = this.props.placeholderTextColor;

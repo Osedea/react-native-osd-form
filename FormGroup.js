@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {
     StyleSheet,
+    Text,
     View,
 } from 'react-native';
 import { includes } from 'lodash';
@@ -75,6 +76,8 @@ export default class FormGroup extends Component {
         inputs: React.PropTypes.arrayOf(inputPropType),
         insertAfter: React.PropTypes.node,
         insertBefore: React.PropTypes.node,
+        label: React.PropTypes.string,
+        labelStyle: Text.propTypes.style,
         noValidate: React.PropTypes.bool,
         onChange: React.PropTypes.func,
         onFocus: React.PropTypes.func,
@@ -82,6 +85,10 @@ export default class FormGroup extends Component {
         onRef: React.PropTypes.func,
         onSubmit: React.PropTypes.func,
         style: View.propTypes.style,
+    };
+
+    static defaultProps = {
+        customize: {},
     };
 
     render() {
@@ -95,7 +102,7 @@ export default class FormGroup extends Component {
                     <FormPills
                         {...inputObject}
                         displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         key={`Pills-${index}`}
                         noValidate={this.props.noValidate}
                         onFormChange={this.props.onChange}
@@ -108,7 +115,7 @@ export default class FormGroup extends Component {
                     <FormCheckboxes
                         {...inputObject}
                         displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         key={`Checkboxes-${index}`}
                         noValidate={this.props.noValidate}
                         onFormChange={this.props.onChange}
@@ -121,7 +128,7 @@ export default class FormGroup extends Component {
                     <FormCheckbox
                         {...inputObject}
                         displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         key={`Checkbox-${index}`}
                         noValidate={this.props.noValidate}
                         onFormChange={this.props.onChange}
@@ -134,7 +141,7 @@ export default class FormGroup extends Component {
                     <FormRadio
                         {...inputObject}
                         displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         key={`Radio-${index}`}
                         noValidate={this.props.noValidate}
                         onFormChange={this.props.onChange}
@@ -147,7 +154,7 @@ export default class FormGroup extends Component {
                     <FormRangeInput
                         {...inputObject}
                         displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         key={`RangeInput-${index}`}
                         noValidate={this.props.noValidate}
                         onFormChange={this.props.onChange}
@@ -160,7 +167,7 @@ export default class FormGroup extends Component {
                     <FormTextInput
                         {...inputObject}
                         displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         key={`TextInput-${index}`}
                         noValidate={this.props.noValidate}
                         onFocus={this.props.onFocus}
@@ -174,7 +181,7 @@ export default class FormGroup extends Component {
                     <FormButton
                         {...inputObject}
                         displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         key={`Button-${index}`}
                         noValidate={this.props.noValidate}
                         onFormChange={this.props.onChange}
@@ -182,25 +189,25 @@ export default class FormGroup extends Component {
                         onSubmit={this.props.onSubmit}
                     />
                 );
-            } else if (includes(FormMediaInput.acceptedTypes, inputObject.type)) {
-                input = (
-                    <FormMediaInput
-                        {...inputObject}
-                        displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
-                        key={`MediaInput-${index}`}
-                        noValidate={this.props.noValidate}
-                        onFormChange={this.props.onChange}
-                        onInputEnd={this.props.onInputEnd}
-                        onRef={this.props.onRef}
-                    />
-                );
+            // } else if (includes(FormMediaInput.acceptedTypes, inputObject.type)) {
+            //     input = (
+            //         <FormMediaInput
+            //             {...inputObject}
+            //             displayErrorsGlobally={this.props.displayErrorsGlobally}
+            //             customize={this.props.customize}
+            //             key={`MediaInput-${index}`}
+            //             noValidate={this.props.noValidate}
+            //             onFormChange={this.props.onChange}
+            //             onInputEnd={this.props.onInputEnd}
+            //             onRef={this.props.onRef}
+            //         />
+            //     );
             } else if (includes(FormDateTimeInput.acceptedTypes, inputObject.type)) {
                 input = (
                     <FormDateTimeInput
                         {...inputObject}
                         displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         key={`DateTimeInput-${index}`}
                         noValidate={this.props.noValidate}
                         onFormChange={this.props.onChange}
@@ -212,12 +219,8 @@ export default class FormGroup extends Component {
                 input = (
                     <FormSeparator
                         {...inputObject}
-                        displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         key={`Separator-${index}`}
-                        noValidate={this.props.noValidate}
-                        onFormChange={this.props.onChange}
-                        onInputEnd={this.props.onInputEnd}
                     />
                 );
             } else if (inputObject.type === FormSwitch.type) {
@@ -225,7 +228,7 @@ export default class FormGroup extends Component {
                     <FormSwitch
                         {...inputObject}
                         displayErrorsGlobally={this.props.displayErrorsGlobally}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         key={`Switch-${index}`}
                         noValidate={this.props.noValidate}
                         onFormChange={this.props.onChange}
@@ -255,12 +258,22 @@ export default class FormGroup extends Component {
                 style={[
                     styles.container,
                     this.props.style,
-                    this.props.globalStyles
-                        ? this.props.globalStyles.formGroupStyle
-                        : null,
+                    this.props.customize.FormGroupStyle,
                 ]}
             >
                 {this.props.insertBefore}
+                {this.props.label
+                    ? <Text
+                        style={[
+                            styles.label,
+                            this.props.customize.FormGroupLabelStyle,
+                            this.props.labelStyle,
+                        ]}
+                    >
+                        {this.props.label}
+                    </Text>
+                    : null
+                }
                 {inputsRender}
                 {this.props.insertAfter}
             </View>

@@ -5,10 +5,10 @@ import {
     Switch,
     TouchableHighlight,
 } from 'react-native';
-import Button from 'react-native-osd-simple-button';
 
 import Input from '../Input';
 import colors from '../colors';
+import { formSwitchType } from './types';
 
 const styles = StyleSheet.create({
     onOffText: {
@@ -17,13 +17,17 @@ const styles = StyleSheet.create({
 });
 
 export default class FormSwitch extends Input {
-    static type = 'switch';
+    static type = formSwitchType;
 
     static propTypes = {
         component: React.PropTypes.element,
-        type: React.PropTypes.oneOf([this.type]),
-        ...Button.propTypes,
+        type: React.PropTypes.oneOf([FormSwitch.type]),
+        ...Switch.propTypes,
         ...Input.propTypes,
+    };
+
+    static defaultProps = {
+        customize: {},
     };
 
     handleSwitchChange = (value) => {
@@ -38,6 +42,9 @@ export default class FormSwitch extends Input {
             input = (
                 <Switch
                     {...this.props}
+                    onTintColor={this.props.onTintColor || this.props.customize.FormSwitchOnTintColor}
+                    tintColor={this.props.tintColor || this.props.customize.FormSwitchTintColor}
+                    thumbTintColor={this.props.thumbTintColor || this.props.customize.FormSwitchThumbTintColor}
                     onValueChange={this.handleSwitchChange}
                     value={typeof this.state.value !== 'undefined' ? this.state.value : this.props.value}
                 />
@@ -45,13 +52,29 @@ export default class FormSwitch extends Input {
         } else {
             input = (
                 <TouchableHighlight
+                    {...this.props}
                     underlayColor={colors.touchableUnderlayColor}
                     onPress={this.handleSwitchChange}
+                    style={{ backgroundColor: this.props.thumbTintColor || this.props.customize.FormSwitchThumbTintColor }}
                     ref={this.handleRef}
                 >
                     {this.state.value
-                        ? <Text style={styles.onOffText}>{'True'}</Text>
-                        : <Text style={styles.onOffText}>{'False'}</Text>
+                        ? <Text
+                            style={[
+                                styles.onOffText,
+                                { color: this.props.onTintColor || this.props.customize.FormSwitchOnTintColor },
+                            ]}
+                        >
+                            {'True'}
+                        </Text>
+                        : <Text
+                            style={[
+                                styles.onOffText,
+                                { color: this.props.tintColor || this.props.customize.FormSwitchTintColor },
+                            ]}
+                        >
+                            {'False'}
+                        </Text>
                     }
                 </TouchableHighlight>
             );

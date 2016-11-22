@@ -7,13 +7,14 @@ import { includes } from 'lodash';
 
 import FormCheckbox from './FormCheckbox';
 import Input from '../Input';
+import { formCheckboxesType } from './types';
 
 const styles = StyleSheet.create({
     container: {},
 });
 
 export default class FormCheckboxes extends Input {
-    static type = 'checkboxes';
+    static type = formCheckboxesType;
 
     static propTypes = {
         options: React.PropTypes.arrayOf(
@@ -26,6 +27,10 @@ export default class FormCheckboxes extends Input {
         ),
         type: React.PropTypes.oneOf([FormCheckboxes.type]),
         ...Input.propTypes,
+    };
+
+    static defaultProps = {
+        customize: {},
     };
 
     createCheckboxesChangeHandler = (option) => (checked) => {
@@ -47,7 +52,10 @@ export default class FormCheckboxes extends Input {
     render() {
         return super.render(
             <View
-                style={this.props.containerStyle}
+                style={[
+                    this.props.customize.FormCheckboxesContainerStyle,
+                    this.props.containerStyle,
+                ]}
                 ref={this.handleRef}
             >
                 {this.props.options.map((item, optionIndex) => (
@@ -56,10 +64,12 @@ export default class FormCheckboxes extends Input {
                         key={`${this.props.name}-option-${optionIndex}`}
                         labelContainerStyle={[
                             this.props.labelContainerStyle,
+                            this.props.customize.FormCheckboxesLabelContainerStyle,
                             item.labelContainerStyle,
                         ]}
                         labelStyle={[
                             this.props.labelStyle,
+                            this.props.customize.FormCheckboxesLabelStyle,
                             item.labelStyle,
                         ]}
                         checked={typeof (item.checked) !== 'undefined'
@@ -69,10 +79,12 @@ export default class FormCheckboxes extends Input {
                         onChange={this.createCheckboxesChangeHandler(item)}
                         style={[
                             this.props.style,
+                            this.props.customize.FormCheckboxesStyle,
                             item.style,
                         ]}
                         checkboxStyle={[
                             this.props.checkboxStyle,
+                            this.props.customize.FormCheckboxesCheckboxStyle,
                             item.checkboxStyle,
                         ]}
                     />

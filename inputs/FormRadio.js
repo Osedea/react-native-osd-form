@@ -1,14 +1,13 @@
 import React from 'react';
 import {
     Dimensions,
-    Modal,
-    Platform,
     Picker,
     StyleSheet,
-    View,
 } from 'react-native';
+
 import Input from '../Input';
 import colors from '../colors';
+import { formRadioType } from './types';
 
 const styles = StyleSheet.create({
     radioContent: {
@@ -47,44 +46,62 @@ const styles = StyleSheet.create({
 });
 
 export default class FormRadio extends Input {
-    static type = 'radio';
+    static type = formRadioType;
 
     static propTypes = {
+        ...Picker.propTypes,
         buttonLabel: React.PropTypes.string, // Label to be displayed in the "button" for iOS
+        itemStyle: Picker.propTypes.itemStyle,
         options: React.PropTypes.arrayOf(
-            React.PropTypes.shape({
-                label: React.PropTypes.string,
-                value: React.PropTypes.string,
-            })
+            React.PropTypes.shape(Picker.Item.propTypes)
         ),
         pickerStyle: Picker.propTypes.style,
-        type: React.PropTypes.oneOf([this.type]),
+        type: React.PropTypes.oneOf([FormRadio.type]),
         ...Input.propTypes,
     };
 
-    createRadioCheckItemPressHandler = (option) => () => {
-        if (option.onChange) {
-            option.onChange(option.value);
-        }
-
-        this.handleChange(option.value);
-        this.handleInputEnd();
+    static defaultProps = {
+        customize: {},
     };
+
+    handleRadioChange = (value) => {
+        this.handleChange(value);
+        this.handleInputEnd();
+    }
 
     render() {
         return super.render(
             <Picker
-                selectedValue={typeof this.state.values[this.props.name] !== 'undefined' ? this.state.values[this.props.name] : this.props.selectedValue}
-                onValueChange={this.handleChange}
-                style={styles.picker || this.props.pickerStyle}
+                selectedValue={
+                    typeof this.state.value !== 'undefined'
+                        ? this.state.value
+                        : this.props.selectedValue
+                }
+                enabled={!this.props.disabled}
+                onValueChange={this.handleRadioChange}
+                itemStyle={[
+                    this.props.customize.FormRadioPickerItemStyle,
+                    this.props.itemStyle,
+                ]}
+                style={[
+                    styles.picker,
+                    this.props.customize.FormRadioPickerStyle,
+                    this.props.pickerStyle,
+                ]}
                 ref={this.handleRef}
             >
                 {this.props.options.map((item, optionIndex) => (
                     <Picker.Item
+                        {...item}
                         key={`${this.props.name}-option-${optionIndex}`}
                         label={item.label || item.value}
-                        value={item.value}
-                    />))}
+                        style={[
+                            this.props.customize.FormRadioPickerItemStyle,
+                            this.props.itemStyle,
+                            item.style,
+                        ]}
+                    />
+                ))}
             </Picker>
         );
     }

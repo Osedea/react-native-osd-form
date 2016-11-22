@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import {
     StyleSheet,
     Text,
-    TextInput,
     View,
 } from 'react-native';
 import { includes, findIndex, reduce } from 'lodash';
@@ -12,6 +11,7 @@ import Error from './Error';
 import FormGroup from './FormGroup';
 import FormButton from './inputs/FormButton';
 import FormCheckbox from './inputs/FormCheckbox';
+import FormCheckboxInput from './inputs/FormCheckboxInput';
 import FormCheckboxes from './inputs/FormCheckboxes';
 import FormDateTimeInput from './inputs/FormDateTimeInput';
 import FormMediaInput from './inputs/FormMediaInput';
@@ -47,46 +47,81 @@ const interactableTypes = [
 
 export default class Form extends Component {
     static propTypes = {
-        // executeRequest: React.PropTypes.bool,
+        customize: React.PropTypes.shape({
+            inputContainerStyle: View.propTypes.style,
+            inputLabelContainerStyle: View.propTypes.style,
+            inputLabelStyle: Text.propTypes.style,
+            inputErrorStyle: Text.propTypes.style,
+            inputErrorContainerStyle: View.propTypes.style,
+            inputModalButtonContainerStyle: View.propTypes.style,
+            inputModalButtonStyle: View.propTypes.style,
+            inputModalButtonTextStyle: Text.propTypes.style,
+            FormGroupStyle: FormGroup.propTypes.style,
+            FormGroupLabelStyle: FormGroup.propTypes.labelStyle,
+            ErrorStyle: Error.propTypes.style,
+            ErrorContainerStyle: Error.propTypes.containerStyle,
+            FormButtonContainerStyle: FormButton.propTypes.containerStyle,
+            FormButtonTextContainerStyle: FormButton.propTypes.textContainerStyle,
+            FormButtonTextStyle: FormButton.propTypes.textStyle,
+            FormButtonUnderlayColor: FormButton.propTypes.underlayColor,
+            FormCheckboxContainerStyle: FormCheckbox.propTypes.containerStyle,
+            FormCheckboxCheckboxStyle: FormCheckbox.propTypes.checkboxStyle,
+            FormCheckboxLabelContainerStyle: FormCheckbox.propTypes.labelContainerStyle,
+            FormCheckboxLabelStyle: FormCheckbox.propTypes.labelStyle,
+            FormCheckboxStyle: FormCheckbox.propTypes.style,
+            FormCheckboxUnderlayColor: FormCheckbox.propTypes.underlayColor,
+            FormCheckboxesContainerStyle: FormCheckboxes.propTypes.containerStyle,
+            FormCheckboxesLabelContainerStyle: FormCheckboxes.propTypes.labelContainerStyle,
+            FormCheckboxesLabelStyle: FormCheckboxes.propTypes.labelStyle,
+            FormCheckboxesStyle: FormCheckboxes.propTypes.style,
+            FormCheckboxesCheckboxStyle: FormCheckboxes.propTypes.checkboxStyle,
+            FormDateTimeInputIosDoneButtonText: FormDateTimeInput.propTypes.iosDoneButtonText,
+            FormDateTimeInputIosDoneButtonStyle: FormDateTimeInput.propTypes.iosDoneButtonStyle,
+            FormDateTimeInputIosClosePickerButtonTextContainerStyle: FormDateTimeInput.propTypes.iosClosePickerButtonTextContainerStyle,
+            FormDateTimeInputIosClosePickerButtonTextStyle: FormDateTimeInput.propTypes.iosClosePickerButtonTextStyle,
+            FormDateTimeInputLabel: FormDateTimeInput.propTypes.label,
+            // FormMediaInputStyle: FormMediaInput.propTypes.style,
+            // FormMediaInputContainerStyle: FormMediaInput.propTypes.containerStyle,
+            FormPillsContainerStyle: FormPills.propTypes.containerStyle,
+            FormPillsUnderlayColor: FormPills.propTypes.underlayColor,
+            FormPillsPillContainerStyle: FormPills.propTypes.options.pillContainerStyle,
+            FormPillsPillSelectedContainerStyle: FormPills.propTypes.options.selectedContainerStyle,
+            FormPillsPillTextStyle: FormPills.propTypes.options.pillTextStyle,
+            FormPillsPillSelectedStyle: FormPills.propTypes.options.selectedStyle,
+            FormRadioPickerItemStyle: FormRadio.propTypes.itemStyle,
+            FormRadioPickerStyle: FormRadio.propTypes.style,
+            FormRangeInputContainerStyle: FormRangeInput.propTypes.containerStyle,
+            FormRangeInputTrackStyle: FormRangeInput.propTypes.trackStyle,
+            FormRangeInputSelectedStyle: FormRangeInput.propTypes.selectedStyle,
+            FormRangeInputUnselectedStyle: FormRangeInput.propTypes.unselectedStyle,
+            FormRangeInputMarkerStyle: FormRangeInput.propTypes.markerStyle,
+            FormRangeInputPressedMarkerStyle: FormRangeInput.propTypes.pressedMarkerStyle,
+            FormSeparatorStyle: FormSeparator.propTypes.style,
+            FormSwitchContainerStyle: View.propTypes.style,
+            FormSwitchLabelStyle: Text.propTypes.style,
+            FormSwitchOnTintColor: FormSwitch.propTypes.onTintColor,
+            FormSwitchTintColor: FormSwitch.propTypes.tintColor,
+            FormSwitchThumbTintColor: FormSwitch.propTypes.thumbTintColor,
+            FormTextInputStyle: FormTextInput.propTypes.style,
+            FormTextInputContainerStyle: FormTextInput.propTypes.containerStyle,
+            FormTextInputPlaceholderTextColor: FormTextInput.propTypes.placeholderTextColor,
+            modalContentContainerStyle: View.propTypes.style,
+            modalStyle: View.propTypes.style,
+            modalTransparent: React.PropTypes.bool,
+        }),
+        disableLastInputSubmits: React.PropTypes.bool,
+        // Set `displayErrorsGlobally` to true to have the errors displaying
+        // at the bottom of the Form component and not on each of the invalid inputs
+        displayErrorsGlobally: React.PropTypes.bool,
+        executeRequest: React.PropTypes.bool,
         /* if executeRequest is true:
         action: React.PropTypes.string, // url
         method: React.PropTypes.oneOf(['GET', 'POST', 'PUT', 'DELETE']),
         triggerSubmitFunction will return a promise ?
         */
-        // Set `displayErrorsGlobally` to true to have the errors displaying
-        // at the bottom of the Form component and not on each of the invalid inputs
-        displayErrorsGlobally: React.PropTypes.bool,
         formGroups: React.PropTypes.arrayOf(React.PropTypes.shape(FormGroup.propTypes)),
         globalErrorContainerStyle: View.propTypes.style,
         globalErrorStyle: Text.propTypes.style,
-        globalStyles: React.PropTypes.shape({
-            inputContainerStyle: View.propTypes.style,
-            placeholderTextColor: TextInput.propTypes.placeholderTextColor,
-            labelStyle: Text.propTypes.style,
-            formGroupStyle: FormGroup.propTypes.style,
-            ErrorStyle: Error.propTypes.style,
-            ErrorContainerStyle: Error.propTypes.containerStyle,
-            FormCheckboxesStyle: FormCheckboxes.propTypes.style,
-            FormCheckboxesContainerStyle: FormCheckboxes.propTypes.containerStyle,
-            FormCheckboxStyle: FormCheckbox.propTypes.style,
-            FormCheckboxContainerStyle: FormCheckbox.propTypes.containerStyle,
-            FormDateTimeInputStyle: FormDateTimeInput.propTypes.style,
-            FormDateTimeInputContainerStyle: FormDateTimeInput.propTypes.containerStyle,
-            FormMediaInputStyle: FormMediaInput.propTypes.style,
-            FormMediaInputContainerStyle: FormMediaInput.propTypes.containerStyle,
-            FormRadioStyle: FormRadio.propTypes.style,
-            FormRadioContainerStyle: FormRadio.propTypes.containerStyle,
-            FormPillsStyle: FormPills.propTypes.style,
-            FormPillsContainerStyle: FormPills.propTypes.containerStyle,
-            FormRangeInputStyle: FormRangeInput.propTypes.style,
-            FormRangeInputContainerStyle: FormRangeInput.propTypes.containerStyle,
-            FormSeparatorStyle: FormSeparator.propTypes.style,
-            FormSeparatorContainerStyle: FormSeparator.propTypes.containerStyle,
-            FormSwitchStyle: FormSwitch.propTypes.style,
-            FormSwitchContainerStyle: FormSwitch.propTypes.containerStyle,
-            FormTextInputStyle: FormTextInput.propTypes.style,
-            FormTextInputContainerStyle: FormTextInput.propTypes.containerStyle,
-        }),
         // You don't HAVE to use formGroups, you can just pass your inputs directly
         // It WILL however create a formGroup around them by default
         inputs: FormGroup.propTypes.inputs,
@@ -113,12 +148,22 @@ export default class Form extends Component {
         this.inputs = props.formGroups
             ? props.formGroups.reduce((results, formGroup) => {
                 formGroup.inputs.forEach((input) => {
-                    results.push(input);
+                    if (!(
+                        includes(FormButton.acceptedTypes, input.type)
+                        || input.type === FormSeparator.type
+                    )) {
+                        results.push(input);
+                    }
                 });
 
                 return results;
             }, [])
-            : props.inputs;
+            : props.inputs.filter(
+                (input) => !(
+                    includes(FormButton.acceptedTypes, input.type)
+                    || input.type === FormSeparator.type
+                )
+            );
 
         // To know if we need to put the autoFocus on the first field
         // or if the user defined it on one of the fields
@@ -137,7 +182,7 @@ export default class Form extends Component {
 
         this.inputs = nextProps.formGroups.reduce((results, formGroup) => {
             formGroup.inputs.forEach((input) => {
-                if (input.type === FormCheckbox.type && input.checked) {
+                if (input.type === FormCheckboxInput.type && input.checked) {
                     newStateValue[input.name] = true;
                 } else if (input.type === FormCheckboxes.type) {
                     input.options.forEach((option) => {
@@ -177,13 +222,7 @@ export default class Form extends Component {
     getInitialValues = () => {
         const initialValues = this.inputs.reduce(
             (result, input) => {
-                if (input.type === HIDDEN_TYPE) {
-                    result[input.name] = input.value;
-                } else if (input.type === FormPills.type) {
-                    result[input.name] = input.initialValue;
-                } else if (input.type === FormRadio.type) {
-                    result[input.name] = input.value;
-                } else if (input.type === FormCheckboxes.type) {
+                if (input.type === FormCheckboxes.type) {
                     result[input.name] = reduce(
                         input.options,
                         (subResult, option) => {
@@ -195,8 +234,12 @@ export default class Form extends Component {
                         },
                         [] // Initial 'subResult' object
                     );
-                } else if (includes(FormTextInput.acceptedTypes, input.type)) {
-                    result[input.name] = input.value;
+                } else if (input.type === FormCheckboxInput.type) {
+                    result[input.name] = input.initialValue || input.value || false;
+                } else if (input.type === FormRangeInput.type) {
+                    result[input.name] = input.initialValues || input.values;
+                } else {
+                    result[input.name] = input.initialValue || input.value;
                 }
 
                 return result;
@@ -264,6 +307,10 @@ export default class Form extends Component {
         const nextInput = this.inputs[index + 1];
 
         if (!nextInput) {
+            if (!this.props.disableLastInputSubmits) {
+                this.handleSubmit();
+            }
+
             return;
         }
 
@@ -291,11 +338,6 @@ export default class Form extends Component {
                 }
             } else if (nextInput.nextSkip) {
                 this.handleInputEnd(nextInput);
-            } else if (nextInput.type === 'submit') {
-                // ! \\ Called two times when the arrow is clicked on android
-                this.handleSubmit();
-            } else if (nextInput.type === 'button') {
-                nextInput.onPress();
             } else if (nextInput.type === 'image' || nextInput.type === 'video') {
                 // TODO Open image picker
                 console.log('Open image/video picker');
@@ -331,8 +373,16 @@ export default class Form extends Component {
             this.focusedInput.blur();
         }
 
-        if (this.validateAllFields() && this.props.onSubmit) {
-            this.props.onSubmit(this.state.values);
+        if (this.validateAllFields()) {
+            if (this.props.onSubmit) {
+                if (this.props.executeRequest) {
+                    // Do the request and then call this.props.onSubmit
+                } else {
+                    this.props.onSubmit(this.state.values);
+                }
+            } else {
+                console.log('Not doing anything on submit?');
+            }
         }
     };
 
@@ -349,7 +399,7 @@ export default class Form extends Component {
                         <FormGroup
                             {...formGroup}
                             displayErrorsGlobally={this.props.displayErrorsGlobally}
-                            globalStyles={this.props.globalStyles}
+                            customize={this.props.customize}
                             noValidate={this.props.noValidate}
                             onChange={this.handleChange}
                             key={`formGroup-${formGroupsIndex}`}
@@ -362,7 +412,7 @@ export default class Form extends Component {
                     : <FormGroup
                         displayErrorsGlobally={this.props.displayErrorsGlobally}
                         inputs={this.props.inputs}
-                        globalStyles={this.props.globalStyles}
+                        customize={this.props.customize}
                         noValidate={this.props.noValidate}
                         onChange={this.handleChange}
                         onRef={this.handleRef}

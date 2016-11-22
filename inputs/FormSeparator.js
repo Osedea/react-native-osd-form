@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 
 import colors from '../colors';
+import { formSeparatorType } from './types';
 
 const styles = StyleSheet.create({
     separator: {
@@ -16,15 +17,20 @@ const styles = StyleSheet.create({
 });
 
 export default class FormSeparator extends Component {
-    static type = 'separator';
+    static type = formSeparatorType;
 
     static propTypes = { style: View.propTypes.style };
+
+    static defaultProps = {
+        customize: {},
+    };
 
     render() {
         return (
             <View
                 style={[
                     styles.separator,
+                    this.props.customize.FormSeparatorStyle,
                     this.props.style,
                 ]}
             />

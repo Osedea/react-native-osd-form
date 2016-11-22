@@ -4,7 +4,9 @@ import {
     View,
 } from 'react-native';
 import Button from 'react-native-osd-simple-button';
+
 import colors from '../colors';
+import { formButtonAcceptedTypes } from './types';
 
 const styles = StyleSheet.create({
     container: {
@@ -14,15 +16,12 @@ const styles = StyleSheet.create({
 });
 
 export default class FormButton extends Component {
-    static acceptedTypes = [
-        'button',
-        'submit',
-    ];
+    static acceptedTypes = formButtonAcceptedTypes;
 
     static propTypes = {
         component: React.PropTypes.element,
         inputContainerStyle: View.propTypes.style,
-        type: React.PropTypes.oneOf(this.acceptedTypes),
+        type: React.PropTypes.oneOf(FormButton.acceptedTypes),
         ...Button.propTypes,
         onPress: (props, propName, componentName) => {
             if (propName === 'onPress' && props.type !== 'submit' && !props.onPress) {
@@ -33,6 +32,10 @@ export default class FormButton extends Component {
 
             return null;
         },
+    };
+
+    static defaultProps = {
+        customize: {},
     };
 
     createPressHandler = () => {
@@ -49,9 +52,19 @@ export default class FormButton extends Component {
         return (
             <ButtonComponent
                 {...this.props}
+                underlayColor={this.props.customize.FormButtonUnderlayColor}
                 containerStyle={[
                     styles.container,
+                    this.props.customize.FormButtonContainerStyle,
                     this.props.containerStyle,
+                ]}
+                textContainerStyle={[
+                    this.props.customize.FormButtonTextContainerStyle,
+                    this.props.textContainerStyle,
+                ]}
+                textStyle={[
+                    this.props.customize.FormButtonTextStyle,
+                    this.props.textStyle,
                 ]}
                 onPress={this.createPressHandler()}
             />

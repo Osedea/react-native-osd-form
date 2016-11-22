@@ -11,8 +11,10 @@ import {
 import MultipleImagePicker from 'react-native-image-crop-picker';
 import ImagePickerManager from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
+
 import Input from '../Input';
 import colors from '../colors';
+import { formMediaInputAcceptedTypes } from './types';
 
 const styles = StyleSheet.create({
     previewContainer: {
@@ -97,18 +99,14 @@ const styles = StyleSheet.create({
 });
 
 export default class FormMediaInput extends Input {
-    static acceptedTypes = [
-        'image',
-        'video',
-        'imageCustom',
-    ];
+    static acceptedTypes = formMediaInputAcceptedTypes;
 
+    // For more info, see https://github.com/marcshilling/react-native-image-picker#options
     static propTypes = {
         onCancel: React.PropTypes.func,
         onChangeFailed: React.PropTypes.func,
-        // For more info, see https://github.com/marcshilling/react-native-image-picker#options
         pickerOptions: React.PropTypes.object,
-        type: React.PropTypes.oneOf(['image', 'video']),
+        type: React.PropTypes.oneOf(FormMediaInput.acceptedTypes),
         ...Input.propTypes,
     };
 

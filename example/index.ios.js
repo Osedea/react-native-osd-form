@@ -13,6 +13,17 @@ import {
 } from 'react-native';
 import ExampleComponent from './ExampleComponent';
 
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingTop: 20,
+        backgroundColor: '#DDDDDD',
+    },
+    platform: {
+        textAlign: 'center',
+    },
+});
+
 export default class example extends Component {
     render() {
         return (
@@ -23,16 +34,5 @@ export default class example extends Component {
         );
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingTop: 20,
-        backgroundColor: '#999999',
-    },
-    platform: {
-        textAlign: 'center',
-    },
-});
 
 AppRegistry.registerComponent('example', () => example);

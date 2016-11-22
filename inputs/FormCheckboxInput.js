@@ -2,13 +2,14 @@ import React from 'react';
 
 import FormCheckbox from './FormCheckbox';
 import Input from '../Input';
+import { formCheckboxType } from './types';
 
 export default class FormCheckboxInput extends Input {
-    static type = 'checkbox';
+    static type = formCheckboxType;
 
     static propTypes = {
         checkboxLabel: React.PropTypes.string,
-        type: React.PropTypes.oneOf(['checkbox']),
+        type: React.PropTypes.oneOf([FormCheckboxInput.type]),
         ...Input.propTypes,
     };
 
