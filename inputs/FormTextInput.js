@@ -15,18 +15,23 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         minHeight: 40,
-        padding: 10,
         fontSize: 14,
         backgroundColor: colors.white,
         ...(Platform.OS === 'ios'
             ? {
                 borderWidth: 1,
                 borderRadius: 4, // Tried to fit with the apple doc https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/Controls.html#//apple_ref/doc/uid/TP40006556-CH15-SW1
+                padding: 10,
             }
-            : {}
+            : {
+                paddingLeft: 5,
+                paddingRight: 5,
+                borderRadius: 4,
+            }
         ),
         borderColor: colors.lighterGrey,
         justifyContent: 'center',
+        textAlignVertical: 'center',
     },
     iconAndInputContainer: {
         flex: 1,
@@ -50,6 +55,13 @@ const styles = StyleSheet.create({
         width: 20,
         height: 13,
         marginRight: 10,
+    },
+    inputIconContainer: {
+        height: 40,
+        maxWidth: 40,
+        alignItems: 'center',
+        alignSelf: 'center',
+        justifyContent: 'center',
     },
     inactivePasswordIcon: { tintColor: colors.inactiveTouchableUnderlayColor },
     textareaInput: {
@@ -308,18 +320,20 @@ export default class FormTextInput extends Input {
             icon = (
                 <TouchableHighlight
                     onPress={this.handleSecureTextEntryChange}
-                    style={[styles.inputTouchableIconStyle]}
+                    style={styles.inputTouchableIconStyle}
                     underlayColor={'transparent'}
                 >
-                    <Image
-                        source={require('../images/show-password.png')}
-                        style={[
-                            styles.inputIconStyle,
-                            !this.state.secureTextEntry
-                                ? styles.inactivePasswordIcon
-                                : {},
-                        ]}
-                    />
+                    <View style={styles.inputIconContainer}>
+                        <Image
+                            source={require('../images/show-password.png')}
+                            style={[
+                                styles.inputIconStyle,
+                                !this.state.secureTextEntry
+                                    ? styles.inactivePasswordIcon
+                                    : {},
+                            ]}
+                        />
+                    </View>
                 </TouchableHighlight>
             );
         }

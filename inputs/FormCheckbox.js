@@ -10,8 +10,7 @@ const styles = StyleSheet.create({
     checkboxContainerStyle: {
         alignItems: 'flex-start',
         flexDirection: 'row',
-        paddingTop: 2,
-        paddingBottom: 2,
+        padding: 5,
     },
     checkboxLabel: { color: colors.black },
     checkboxLabelContainer: {},

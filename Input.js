@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+    Dimensions,
     Modal,
     Platform,
     StyleSheet,
@@ -10,7 +11,12 @@ import {
 import Button from 'react-native-osd-simple-button';
 import { includes } from 'lodash';
 
-import { formTextInputAcceptedTypes, formRangeInputType } from './inputs/types';
+import {
+    formTextInputAcceptedTypes,
+    formRangeInputType,
+    formRadioType,
+    formSwitchType,
+} from './inputs/types';
 import Error from './Error';
 import colors from './colors';
 import { validateInput } from './validation';
@@ -48,6 +54,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center',
+        maxWidth: Dimensions.get('window').width - 10,
         padding: 10,
         shadowOffset: {
             height: 2,
@@ -86,6 +93,7 @@ export default class Input extends Component {
         onChange: React.PropTypes.func,
         onFormChange: React.PropTypes.func.isRequired,
         onInputEnd: React.PropTypes.func.isRequired,
+        type: React.PropTypes.string,
         validationErrorMessages: React.PropTypes.arrayOf(React.PropTypes.string),
         validationFunctions: React.PropTypes.arrayOf(React.PropTypes.func),
         value: React.PropTypes.any,
@@ -220,7 +228,7 @@ export default class Input extends Component {
                 style={[
                     styles.inputContainer,
                     this.props.customize.inputContainerStyle,
-                    this.props.type === 'switch'
+                    this.props.type === formSwitchType
                         ? styles.switchInputContainer
                         : null,
                     this.props.containerStyle,
@@ -250,7 +258,13 @@ export default class Input extends Component {
             </View>
         );
 
-        if (this.props.asModal) {
+        if (
+            this.props.asModal
+            && !(
+                this.props.type === formRadioType
+                && Platform.OS === 'android'
+            )
+        ) {
             return (
                 <View
                     style={[
@@ -320,7 +334,7 @@ const Label = (props) => (
             style={[
                 styles.labelContainer,
                 props.customize.inputLabelContainerStyle,
-                props.type === 'switch' && props.handleSwitchCase
+                props.type === formSwitchType && props.handleSwitchCase
                     ? styles.switchInputLabelContainer
                     : null,
                 props.labelContainerStyle,
