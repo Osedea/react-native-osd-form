@@ -136,7 +136,6 @@ export default class Input extends Component {
     };
 
     handleInputEnd = () => {
-        console.log('handleInputEnd', this.state.value);
         if (!this.props.onBlur) {
             // This is an edge case for FormTextInputs
             this.handleValidation();
@@ -152,7 +151,6 @@ export default class Input extends Component {
     };
 
     handleChange = (value) => {
-        console.log('handleChange', value);
         if (this.props.onChange) {
             this.props.onChange(value);
         }
