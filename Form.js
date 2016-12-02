@@ -180,34 +180,41 @@ export default class Form extends Component {
     componentWillReceiveProps = (nextProps) => {
         const newStateValue = {};
 
-        this.inputs = nextProps.formGroups.reduce((results, formGroup) => {
-            formGroup.inputs.forEach((input) => {
-                if (input.type === FormCheckboxInput.type && input.checked) {
-                    newStateValue[input.name] = true;
-                } else if (input.type === FormCheckboxes.type) {
-                    input.options.forEach((option) => {
-                        if (option.checked) {
-                            if (!newStateValue[input.name]) {
-                                newStateValue[input.name] = [];
+        this.inputs = nextProps.formGroups
+            ? nextProps.formGroups.reduce((results, formGroup) => {
+                formGroup.inputs.forEach((input) => {
+                    if (input.type === FormCheckboxInput.type && input.checked) {
+                        newStateValue[input.name] = true;
+                    } else if (input.type === FormCheckboxes.type) {
+                        input.options.forEach((option) => {
+                            if (option.checked) {
+                                if (!newStateValue[input.name]) {
+                                    newStateValue[input.name] = [];
+                                }
+                                newStateValue[input.name].push(option.value);
                             }
-                            newStateValue[input.name].push(option.value);
-                        }
-                    });
-                } else if (includes(FormTextInput.acceptedTypes, input.type) || includes(FormMediaInput.acceptedTypes, input.type)) {
-                    const inputFound = this.inputs.find((foundInput) => input.name === foundInput.name);
+                        });
+                    } else if (includes(FormTextInput.acceptedTypes, input.type) || includes(FormMediaInput.acceptedTypes, input.type)) {
+                        const inputFound = this.inputs.find((foundInput) => input.name === foundInput.name);
 
-                    if (inputFound && input.value !== inputFound.value) {
+                        if (inputFound && input.value !== inputFound.value) {
+                            newStateValue[input.name] = input.value;
+                        }
+                    } else if (input.type === HIDDEN_TYPE) {
                         newStateValue[input.name] = input.value;
                     }
-                } else if (input.type === HIDDEN_TYPE) {
-                    newStateValue[input.name] = input.value;
-                }
 
-                results.push(input);
-            });
+                    results.push(input);
+                });
 
-            return results;
-        }, []);
+                return results;
+            }, [])
+            : nextProps.inputs.filter(
+                (input) => !(
+                    includes(FormButton.acceptedTypes, input.type)
+                    || input.type === FormSeparator.type
+                )
+            );
 
         setTimeout(() => {
             this.setState({
