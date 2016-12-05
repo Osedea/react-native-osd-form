@@ -56,6 +56,7 @@ export default class Form extends Component {
             inputModalButtonContainerStyle: View.propTypes.style,
             inputModalButtonStyle: View.propTypes.style,
             inputModalButtonTextStyle: Text.propTypes.style,
+            FormGroupInputsContainer: FormGroup.propTypes.inputsContainerStyle,
             FormGroupStyle: FormGroup.propTypes.style,
             FormGroupLabelStyle: FormGroup.propTypes.labelStyle,
             ErrorStyle: Error.propTypes.style,

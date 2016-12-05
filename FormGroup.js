@@ -74,6 +74,7 @@ const inputPropType = (props, propName, componentName, ...rest) => {
 export default class FormGroup extends Component {
     static propTypes = {
         inputs: React.PropTypes.arrayOf(inputPropType),
+        inputsContainerStyle: View.propTypes.style,
         insertAfter: React.PropTypes.node,
         insertBefore: React.PropTypes.node,
         label: React.PropTypes.string,
@@ -274,7 +275,15 @@ export default class FormGroup extends Component {
                     </Text>
                     : null
                 }
-                {inputsRender}
+                <View
+                    style={[
+                        styles.inputsContainer,
+                        this.props.customize.FormGroupInputsContainer,
+                        this.props.inputsContainerStyle,
+                    ]}
+                >
+                    {inputsRender}
+                </View>
                 {this.props.insertAfter}
             </View>
         );
