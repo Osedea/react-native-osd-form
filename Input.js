@@ -103,6 +103,7 @@ export default class Input extends Component {
         validationFunctions: [],
         customize: {},
         modalButtonLabel: 'Value =',
+        defaultLabel: 'Choose an option',
     };
 
     constructor(props) {
@@ -263,6 +264,8 @@ export default class Input extends Component {
                 && Platform.OS === 'android'
             )
         ) {
+            const selectedOption = this.props.options.find((option) => option.value === this.state.value);
+
             return (
                 <View
                     style={[
@@ -286,7 +289,7 @@ export default class Input extends Component {
                                 this.props.inputModalButtonTextStyle,
                             ]}
                         >
-                            {`${this.props.modalButtonLabel} ${this.props.options.find((option) => option.value === this.state.value).label}`}
+                            {`${this.props.modalButtonLabel} ${selectedOption ? selectedOption.label : this.props.defaultLabel}`}
                         </Text>
                     </Button>
                     <Modal
