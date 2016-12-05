@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+    Image,
     StyleSheet,
     Text,
     View,
@@ -54,6 +55,7 @@ export default class Form extends Component {
             inputErrorStyle: Text.propTypes.style,
             inputErrorContainerStyle: View.propTypes.style,
             inputModalButtonContainerStyle: View.propTypes.style,
+            inputModalButtonIconStyle: Image.propTypes.style,
             inputModalButtonStyle: View.propTypes.style,
             inputModalButtonTextStyle: Text.propTypes.style,
             FormGroupInputsContainer: FormGroup.propTypes.inputsContainerStyle,

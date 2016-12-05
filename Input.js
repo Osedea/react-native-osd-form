@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {
     Dimensions,
+    Image,
     Modal,
     Platform,
     StyleSheet,
@@ -48,6 +49,18 @@ const styles = StyleSheet.create({
         backgroundColor: colors.touchableUnderlayColor,
     },
     modalButtonContainerStyle: {},
+    modalButtonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'nowrap',
+    },
+    modalButtonText: {
+        flex: 1,
+    },
+    modalButtonIcon: {
+        width: 30,
+        height: 30,
+    },
     modalContentContainer: {
         backgroundColor: colors.white,
         borderRadius: 4,
@@ -84,6 +97,12 @@ export default class Input extends Component {
         inputModalButtonTextStyle: Text.propTypes.style,
         insertAfter: React.PropTypes.node,
         insertBefore: React.PropTypes.node,
+        modalButtonIconStyle: Image.propTypes.style,
+        modalButtonIcon: React.PropTypes.oneOfType([
+            React.PropTypes.number, // require
+            React.PropTypes.object, // { uri: '' }
+        ]),
+        modalButtonIconResizeMode: React.PropTypes.string,
         modalButtonLabel: React.PropTypes.string,
         modalContentContainerStyle: View.propTypes.style,
         modalStyle: View.propTypes.style,
@@ -104,6 +123,7 @@ export default class Input extends Component {
         customize: {},
         modalButtonLabel: 'Value =',
         defaultLabel: 'Choose an option',
+        modalButtonIconResizeMode: 'contain',
     };
 
     constructor(props) {
@@ -281,16 +301,34 @@ export default class Input extends Component {
                             this.props.customize.inputModalButtonStyle,
                             this.props.inputModalButtonStyle,
                         ]}
+                        textContainerStyle={[
+                            styles.modalButtonContent,
+                            this.props.customize.inputModalButtonContentStyle,
+                            this.props.inputModalButtonContentStyle,
+                        ]}
                         onPress={this.handleShowModal}
                     >
                         <Text
                             style={[
+                                styles.modalButtonText,
                                 this.props.customize.inputModalButtonTextStyle,
                                 this.props.inputModalButtonTextStyle,
                             ]}
                         >
                             {`${this.props.modalButtonLabel ? `${this.props.modalButtonLabel} ` : ''}${selectedOption ? selectedOption.label : this.props.defaultLabel}`}
                         </Text>
+                        {this.props.modalButtonIcon
+                            ? <Image
+                                style={[
+                                    styles.modalButtonIcon,
+                                    this.props.customize.inputModalButtonIconStyle,
+                                    this.props.modalButtonIconStyle,
+                                ]}
+                                source={this.props.modalButtonIcon}
+                                resizeMode={this.props.modalButtonIconResizeMode}
+                            />
+                            : null
+                        }
                     </Button>
                     <Modal
                         visible={this.state.modalVisible}
