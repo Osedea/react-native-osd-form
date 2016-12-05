@@ -289,7 +289,7 @@ export default class Input extends Component {
                                 this.props.inputModalButtonTextStyle,
                             ]}
                         >
-                            {`${this.props.modalButtonLabel} ${selectedOption ? selectedOption.label : this.props.defaultLabel}`}
+                            {`${this.props.modalButtonLabel ? `${this.props.modalButtonLabel} ` : ''}${selectedOption ? selectedOption.label : this.props.defaultLabel}`}
                         </Text>
                     </Button>
                     <Modal
