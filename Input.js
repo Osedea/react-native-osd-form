@@ -230,7 +230,7 @@ export default class Input extends Component {
                     this.props.type === formSwitchType
                         ? styles.switchInputContainer
                         : null,
-                    this.props.containerStyle,
+                    this.props.inputContainerStyle,
                 ]}
             >
                 <Label
