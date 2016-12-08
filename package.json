@@ -1,6 +1,6 @@
 {
   "name": "react-native-osd-form",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A React-native customizable form component",
   "main": "Form.js",
   "directories": {
@@ -33,7 +33,7 @@
     "react-native-image-picker": "~0.23.0",
     "react-native-image-resizer": "0.0.12",
     "react-native-multi-slider": "~0.3.5",
-    "react-native-osd-datetimepicker": "~1.0.7",
+    "react-native-osd-datetimepicker": "~1.1.0",
     "react-native-osd-simple-button": "~1.1.0"
   }
 }
