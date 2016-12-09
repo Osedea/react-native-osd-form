@@ -1,6 +1,6 @@
 {
   "name": "react-native-osd-form",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A React-native customizable form component",
   "main": "Form.js",
   "directories": {

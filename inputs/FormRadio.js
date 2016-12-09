@@ -2,7 +2,9 @@ import React from 'react';
 import {
     Dimensions,
     Picker,
+    Platform,
     StyleSheet,
+    View,
 } from 'react-native';
 
 import Input from '../Input';
@@ -43,6 +45,12 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
         tintColor: colors.hnRed,
     },
+    androidPicker: {
+        backgroundColor: colors.white,
+        borderColor: colors.lighterGrey,
+        borderWidth: 1,
+        alignSelf: 'center',
+    },
 });
 
 export default class FormRadio extends Input {
@@ -70,7 +78,7 @@ export default class FormRadio extends Input {
     }
 
     render() {
-        return super.render(
+        let picker = (
             <Picker
                 selectedValue={
                     typeof this.state.value !== 'undefined'
@@ -103,6 +111,25 @@ export default class FormRadio extends Input {
                     />
                 ))}
             </Picker>
+        );
+
+        if (Platform.OS === 'android') {
+            picker = (
+                <View
+                    style={[
+                        styles.picker,
+                        this.props.customize.FormRadioPickerStyle,
+                        this.props.pickerStyle,
+                        styles.androidPicker,
+                    ]}
+                >
+                    {picker}
+                </View>
+            )
+        }
+
+        return super.render(
+            picker
         );
     }
 }

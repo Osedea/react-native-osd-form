@@ -27,6 +27,9 @@ const styles = StyleSheet.create({
                 paddingLeft: 5,
                 paddingRight: 5,
                 borderRadius: 4,
+                borderWidth: 1,
+                paddingTop: 0,
+                paddingBottom: 0,
             }
         ),
         borderColor: colors.lighterGrey,
@@ -350,7 +353,12 @@ export default class FormTextInput extends Input {
             : null;
 
         return super.render(
-            <View style={styles.iconAndInputContainer}>
+            <View
+                style={[
+                    styles.iconAndInputContainer,
+                    this.props.inputContainerStyle,
+                ]}
+            >
                 {input}
                 {inputIcon}
             </View>
