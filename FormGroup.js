@@ -190,19 +190,19 @@ export default class FormGroup extends Component {
                         onSubmit={this.props.onSubmit}
                     />
                 );
-            // } else if (includes(FormMediaInput.acceptedTypes, inputObject.type)) {
-            //     input = (
-            //         <FormMediaInput
-            //             {...inputObject}
-            //             displayErrorsGlobally={this.props.displayErrorsGlobally}
-            //             customize={this.props.customize}
-            //             key={`MediaInput-${index}`}
-            //             noValidate={this.props.noValidate}
-            //             onFormChange={this.props.onChange}
-            //             onInputEnd={this.props.onInputEnd}
-            //             onRef={this.props.onRef}
-            //         />
-            //     );
+            } else if (includes(FormMediaInput.acceptedTypes, inputObject.type)) {
+                input = (
+                    <FormMediaInput
+                        {...inputObject}
+                        displayErrorsGlobally={this.props.displayErrorsGlobally}
+                        customize={this.props.customize}
+                        key={`MediaInput-${index}`}
+                        noValidate={this.props.noValidate}
+                        onFormChange={this.props.onChange}
+                        onInputEnd={this.props.onInputEnd}
+                        onRef={this.props.onRef}
+                    />
+                );
             } else if (includes(FormDateTimeInput.acceptedTypes, inputObject.type)) {
                 input = (
                     <FormDateTimeInput

@@ -121,11 +121,14 @@ export default class FormRadio extends Input {
                         this.props.customize.FormRadioPickerStyle,
                         this.props.pickerStyle,
                         styles.androidPicker,
+                        this.state.error && this.props.customize.inputContainerErrorStyle
+                            ? this.props.customize.inputContainerErrorStyle
+                            : null,
                     ]}
                 >
                     {picker}
                 </View>
-            )
+            );
         }
 
         return super.render(

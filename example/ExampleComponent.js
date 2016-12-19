@@ -19,6 +19,12 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
     },
+    error: { color: '#FFFFFF' },
+    errorContainer: {
+        backgroundColor: '#000077',
+        marginTop: 2,
+    },
+    inputError: { borderColor: '#000077' },
 });
 
 export default class Example extends Component {
@@ -64,6 +70,46 @@ export default class Example extends Component {
                                     type: 'textarea',
                                     name: 'description',
                                     label: 'Description',
+                                },
+                            ],
+                        },
+                        {
+                            label: 'Checkboxes',
+                            inputs: [
+                                {
+                                    type: 'checkbox',
+                                    name: 'checkbox',
+                                    checkboxLabel: 'I accept the terms and conditions',
+                                    label: 'Terms and Conditions',
+                                },
+                                {
+                                    type: 'checkboxes',
+                                    name: 'checkboxes',
+                                    label: 'Choose some stuff',
+                                    options: [
+                                        {
+                                            label: 'Item 1',
+                                            value: 'item-1',
+                                        },
+                                        {
+                                            label: 'Item 2',
+                                            value: 'item-2',
+                                        },
+                                        {
+                                            label: 'Item 3',
+                                            value: 'item-3',
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        {
+                            label: 'Media inputs',
+                            inputs: [
+                                {
+                                    type: 'image',
+                                    name: 'Image',
+                                    label: 'Select a profile picture',
                                 },
                             ],
                         },
@@ -279,9 +325,48 @@ export default class Example extends Component {
                         },
                     ]}
                 />
+                <Text style={styles.title}>{'Validation with customized errors'}</Text>
+                <Form
+                    customize={{
+                        inputErrorStyle: styles.error,
+                        inputErrorContainerStyle: styles.errorContainer,
+                        inputContainerErrorStyle: styles.inputError,
+                    }}
+                    inputs={[
+                        {
+                            type: 'email',
+                            name: 'email',
+                            label: 'Email',
+                            validationFunctions: [
+                                this.validateEmail,
+                            ],
+                            validationErrorMessages: [
+                                'Email is not valid',
+                            ],
+                        },
+                        {
+                            type: 'password',
+                            name: 'password',
+                            label: 'Password',
+                            validationFunctions: [
+                                this.validatePassword,
+                            ],
+                            validationErrorMessages: [
+                                'Password is not valid, it should have at least 8 characters',
+                            ],
+                        },
+                        {
+                            type: 'submit',
+                            text: 'Send',
+                        },
+                    ]}
+                />
                 <Text style={styles.title}>{'Validation with "Global error display"'}</Text>
                 <Form
                     displayErrorsGlobally
+                    customize={{
+
+                    }}
                     formGroups={[
                         {
                             inputs: [

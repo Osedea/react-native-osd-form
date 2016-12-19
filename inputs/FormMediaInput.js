@@ -1,100 +1,110 @@
 import React from 'react';
 import {
+    ActivityIndicator,
     Image,
-    ImageEditor,
-    ImageStore,
     Platform,
     StyleSheet,
+    Text,
     TouchableHighlight,
     View,
 } from 'react-native';
-import MultipleImagePicker from 'react-native-image-crop-picker';
 import ImagePickerManager from 'react-native-image-picker';
-import ImageResizer from 'react-native-image-resizer';
 
 import Input from '../Input';
 import colors from '../colors';
 import { formMediaInputAcceptedTypes } from './types';
 
 const styles = StyleSheet.create({
-    previewContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    previewImageContainer: {
-        flex: 1,
-    },
-    previewImage: {
-        width: 40,
-        height: 40,
-    },
-    removeText: {
-        flex: 1,
-        justifyContent: 'center',
-    },
-    buttonRemove: {
-        backgroundColor: colors.lightGrey,
-        borderWidth: 0,
-    },
-    imageButtonContainerStyle: {
-        flex: 1,
+    callToActions: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginBottom: 20,
+        paddingLeft: 5,
+        paddingRight: 5,
     },
-    imageButtonIconStyle: {
-        width: 25,
-        height: 25,
-        position: 'absolute',
-        right: 0,
-        bottom: 0,
+    touchable: {
+        flex: 0,
+        marginLeft: 10,
     },
-    imageUploadContainer: {
+    firstTouchable: {
+        marginLeft: 0,
+    },
+    multipleActionsTouchable: {
         flex: 1,
+    },
+    action: {
+        flex: 1,
+        minHeight: 40,
         backgroundColor: colors.white,
-        height: 110,
-        marginTop: -10,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        flexDirection: 'row',
+        margin: Platform.OS === 'android' ? 2 : 0,
+        paddingTop: 8,
+        paddingBottom: 8,
+        shadowOffset: {
+            height: 4,
+        },
+        shadowColor: colors.black,
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        ...(Platform.OS === 'android'
+            ? {
+                borderTopWidth: 1,
+                borderTopColor: colors.reallyLightGrey,
+            }
+            : {}
+        ),
     },
-    imageUploadStyle: {
-        height: 40,
-        width: 40,
+    singleAction: {
+        width: 180,
+        padding: 10,
     },
-    imageEditStyle: {
-        height: 30,
-        width: 30,
-        marginLeft: 5,
+    multipleActionsContainer: {
+        paddingLeft: 5,
+        paddingRight: 5,
+        alignItems: 'center',
+    },
+    threeOrMore: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+    },
+    smallPadding: {
+        paddingLeft: 2,
+        paddingRight: 2,
+    },
+    actionIcon: {
+        width: 20,
+        height: 20,
         marginRight: 5,
     },
-    textUploadStyle: {
-        fontSize: 10,
+    multipleActionsIcon: {
+        marginRight: 5,
+    },
+    moreThanThreeIcon: {
+        marginRight: 0,
+        marginBottom: 3,
+    },
+    actionText: {
+        fontSize: 12,
         color: colors.lightGrey,
-        marginTop: 5,
     },
-    imageUploadPreview: {
-        resizeMode: 'cover',
-        flex: 1,
-        height: 110,
-        borderColor: colors.white,
-        borderWidth: 2,
+    multipleActionsText: {
+        marginRight: 0,
+        textAlign: 'center',
     },
-    previewImageOverlay: {
+    ambassadressMultipleActionsText: {
+        fontSize: 8,
+    },
+    imagePreview: {
         position: 'absolute',
-        top: 2,
-        left: 2,
-        right: 0,
-        bottom: 0,
-        flex: 1,
-        height: 110 - 4,
-        backgroundColor: colors.previewOverlay,
+        top: 1,
+        left: 1,
+        width: 38,
+        height: 38,
+        marginRight: 5,
     },
-    previewImageOverlayContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
+    previewContainer: {
+        paddingLeft: 45,
     },
 });
 
@@ -145,380 +155,128 @@ export default class FormMediaInput extends Input {
         cameraType: 'back',
     };
 
-
-    createImageChoiceHandler = (input) => this.createImageOrVideoChoiceHandler(input, this.IMAGE_OPTIONS);
-    createVideoChoiceHandler = (input) => this.createImageOrVideoChoiceHandler(input, this.VIDEO_OPTIONS);
-
-    createImageOrVideoChoiceHandler = (baseOptions) => () => {
-        const cloneBaseOptions = { ...baseOptions };
-
-        if (Platform.OS === 'android' && this.props.multipleOption) {
-            delete cloneBaseOptions.chooseFromLibraryButtonTitle;
-        }
-
-        try {
-            ImagePickerManager.showImagePicker(
-                {
-                    ...cloneBaseOptions,
-                    ...this.props.pickerOptions,
-                },
-                (response) => {
-                    if (response.error) {
-                        this.setState({
-                            failed: true,
-                        });
-                        this.handleInputChange(this.props, response.error);
-                        if (this.props.onChangeFailed) {
-                            this.props.onChangeFailed();
-                        }
-                    } else if (response.customButton === 'multiple') {
-                        MultipleImagePicker.openPicker({
-                            multiple: true,
-                            maxFiles: Math.max(5 - this.props.numberOfImagesAlreadySet, 0),
-                        }).then((images) => {
-                            return Promise.all(
-                                images.slice(0, Math.max(5 - this.props.numberOfImagesAlreadySet, 0)).map((image) => {
-                                    return ImageResizer.createResizedImage(image.path, this.IMAGE_OPTIONS.maxWidth, this.IMAGE_OPTIONS.maxWidth, 'JPEG', 80)
-                                    .then((resizedImageUri) => {
-                                        return new Promise((resolve, reject) => {
-                                            Image.getSize(
-                                                resizedImageUri,
-                                                (width, height) => {
-                                                    ImageEditor.cropImage(
-                                                        resizedImageUri,
-                                                        {
-                                                            offset: {
-                                                                x: 0,
-                                                                y: 0,
-                                                            },
-                                                            size: {
-                                                                width,
-                                                                height,
-                                                            },
-                                                        },
-                                                        (uri) => {
-                                                            ImageStore.getBase64ForTag(
-                                                                uri,
-                                                                (imageBase64) => {
-                                                                    resolve({
-                                                                        uri,
-                                                                        data: imageBase64,
-                                                                        type: 'JPEG',
-                                                                        width,
-                                                                        height,
-                                                                        isVertical: true,
-                                                                    });
-                                                                },
-                                                                (error) => reject(error)
-                                                            );
-                                                        },
-                                                        (error) => reject(error)
-                                                    );
-                                                },
-                                                (error) => reject(error)
-                                            );
-                                        });
-                                    });
-                                })
-                            )
-                            .then((resizedImageObjects) => {
-                                resizedImageObjects.forEach((image, index) => {
-                                    if (index === 0) {
-                                        this.handleInputChange(
-                                            this.props,
-                                            {
-                                                ...image,
-                                                data: `data:image/jpeg;base64,${image.data}`,
-                                            },
-                                            resizedImageObjects.length === 1
-                                        );
-                                    } else {
-                                        const imageName = this.props.addImageInputFunc();
-
-                                        this.handleInputChange(
-                                            {
-                                                ...this.props,
-                                                name: imageName,
-                                            },
-                                            {
-                                                ...image,
-                                                data: `data:image/jpeg;base64,${image.data}`,
-                                            },
-                                            index === resizedImageObjects.length - 1
-                                        );
-                                    }
-                                });
-
-                                MultipleImagePicker.clean();
-                                this.handleInputEnd();
-                            });
-                        }).catch((error) => {
-                            console.log(error);
-                        });
-                    } else if (response.didCancel) {
-                        this.setState({
-                            failed: false,
-                        });
-                        if (this.props.onCancel) {
-                            this.props.onCancel();
-                        }
-                        this.handleInputEnd();
-                    } else {
-                        const source = response;
-
-                        source.data = `data:image/jpeg;base64,${response.data}`;
-                        this.setState({
-                            source,
-                            failed: false,
-                        });
-                        this.handleChange(source);
-                        this.handleInputEnd();
-                    }
-                }
-            );
-        } catch (e) {
-            this.setState({
-                failed: true,
-            });
-            this.handleChange('Error');
-            if (this.props.onChangeFailed) {
-                this.props.onChangeFailed();
+    selectImage = () => {
+        ImagePickerManager.showImagePicker(this.IMAGE_OPTIONS, (response) => {
+            if (response.error) {
+                this.setState({ error: 'imageFailed' });
+            } else if (response.didCancel) {
+                // Do nothing
+            } else {
+                response.data = `data:image/jpeg;base64,${response.data}`;
+                this.handleMediaValue(response);
             }
-        }
-    };
-
-    createResetFieldHandler = (input) => () => {
-        const resetObject = { [input.name]: null };
-
-        this.setState({
-            values: {
-                ...this.state.values,
-                ...resetObject,
-            },
         });
-
-        this.handleChange(null);
-
-        if (input.onChange) {
-            input.onChange(resetObject);
-        }
     };
 
-    renderImageCustomInput = (image) => {
-        return (
-            <TouchableHighlight
-                style={this.props.touchableHighlightStyle}
-                underlayColor={colors.touchableUnderlayColor}
-                onPress={this.createImageChoiceHandler(this.props)}
-            >
-                <View
-                    style={styles.imageUploadContainer}
-                >
-                    <View
-                        style={styles.previewImageContainer}
-                    >
-                        <Image
-                            style={styles.imageUploadPreview}
-                            source={{ uri: image }}
-                            key={`image-${this.props.name}`}
-                        />
-                        <View style={styles.previewImageOverlay}>
-                            <View style={styles.previewImageOverlayContainer}>
-                                <Image
-                                    style={styles.imageEditStyle}
-                                    source={this.props.iconEditImage}
-                                />
-                                <TouchableHighlight
-                                    style={this.props.touchableHighlightStyle}
-                                    underlayColor={colors.touchableUnderlayColor}
-                                    onPress={this.createResetFieldHandler(this.props)}
-                                >
-                                    <Image
-                                        style={styles.imageEditStyle}
-                                        source={this.props.iconRemoveImage}
-                                    />
-                                </TouchableHighlight>
-                            </View>
-                        </View>
-                    </View>
-                </View>
-            </TouchableHighlight>
-        );
+    deleteImage = () => {
+        this.handleMediaValue('');
+    };
+
+    handleMediaValue = (value) => {
+        this.handleChange(value);
+        this.handleInputEnd();
     }
 
     render() {
-        let input;
+        const actions = [
+            ...(this.state.value
+                ? [{
+                    key: 'preview',
+                    onPress: this.deleteImage,
+                    text: 'Delete Image',
+                    iconStyle: styles.imagePreview,
+                    iconResizeMode: 'cover',
+                    icon: { uri: typeof this.state.value === 'object' ? this.state.value.data : this.state.value },
+                    containerStyle: styles.previewContainer,
+                }]
+                : []
+            ),
+            {
+                key: 'addOrChange',
+                onPress: this.selectImage,
+                text: this.state.value
+                    ? 'Change Image'
+                    : 'Add Image',
+                iconStyle: { tintColor: this.props.color },
+                icon: require('../images/image.png'),
+            },
+        ];
 
-        if (this.props.type === 'custom') {
-            let limit = -1;
-
-            formGroup.inputs.forEach((tInput) => {
-                if (tInput.type === 'imageCustom') {
-                    limit += 1;
-                }
-            });
-
-            const modifiedInput = {
-                ...this.props,
-                ...(
-                    this.props.multipleOption
-                    ? {
-                        pickerOptions: {
-                            customButtons: [
-                                {
-                                    name: 'multiple',
-                                    title: translate('form.imagePicker.selectMultipleImages'),
-                                },
-                            ],
-                        },
+        const input = (
+            <View
+                style={styles.callToActions}
+            >
+                {actions.map((action, index) => {
+                    if (action === null) {
+                        return null;
                     }
-                    : {}
-                ),
-            };
 
-            if (
-                (this.state.values[this.props.name]
-                && typeof this.state.values[this.props.name].data !== 'undefined')
-            ) {
-                input = this.renderImageCustomInput(modifiedInput, this.state.values[this.props.name].data);
-            } else if (this.props.source) {
-                input = this.renderImageCustomInput(modifiedInput, this.props.source);
-            } else {
-                let text;
-
-                if (limit < this.props.imagesUploadLimit) {
-                    text = (limit === 0)
-                        ? translate('posts.uploadPhoto')
-                        : `You can upload ${this.props.imagesUploadLimit - limit} photos`;
-
-                    input = (
+                    return (
                         <TouchableHighlight
-                            style={this.props.touchableHighlightStyle}
-                            underlayColor={colors.touchableUnderlayColor}
-                            onPress={this.createImageChoiceHandler(modifiedInput)}
+                            underlayColor={colors.veryLightTransparentGrey}
+                            onPress={action.onPress}
+                            key={action.key}
+                            elevation={1}
+                            style={[
+                                styles.touchable,
+                                index === 0
+                                    ? styles.firstTouchable
+                                    : null,
+                                actions.length > 1
+                                    ? styles.multipleActionsTouchable
+                                    : null,
+                                action.touchableStyle,
+                            ]}
                         >
                             <View
-                                style={styles.imageUploadContainer}
+                                style={[
+                                    styles.action,
+                                    actions.length > 1
+                                        ? styles.multipleActionsContainer
+                                        : styles.singleAction,
+                                    action.containerStyle,
+                                ]}
                             >
-                                <View style={{ alignItems: 'center' }}>
-                                    <Image
-                                        style={styles.imageUploadStyle}
-                                        source={this.props.iconAddImage}
+                                {action.loading
+                                    ? <ActivityIndicator
+                                        size={'small'}
+                                        style={styles.actionIcon}
                                     />
-                                    <Text
-                                        style={styles.textUploadStyle}
-                                    >
-                                        {text}
-                                    </Text>
-                                </View>
+                                    : null
+                                }
+                                {!action.loading && action.icon
+                                    ? <Image
+                                        source={action.icon || this.props.defaultIcon}
+                                        resizeMode={action.iconResizeMode || 'contain'}
+                                        style={[
+                                            styles.actionIcon,
+                                            actions.length > 1
+                                                ? styles.multipleActionsIcon
+                                                : null,
+                                            this.props.actionsIconStyle,
+                                            action.iconStyle,
+                                        ]}
+                                    />
+                                    : null
+                                }
+                                <Text
+                                    style={[
+                                        styles.actionText,
+                                        actions.length > 1
+                                            ? styles.multipleActionsText
+                                            : null,
+                                        this.props.actionsTextStyle,
+                                        action.textStyle,
+                                    ]}
+                                >
+                                    {action.text}
+                                </Text>
                             </View>
                         </TouchableHighlight>
                     );
-                }
-            }
-        } else {
-            let removeButton;
-
-            if (
-                this.state.values[this.props.name]
-                && this.props.hideRemoveButton === false
-            ) {
-                const ButtonComponent = this.props.buttonComponent ? this.props.buttonComponent : Button;
-
-                removeButton = (<ButtonComponent
-                    onPress={this.createResetFieldHandler(this.props)}
-                    text={translate(`form.imagePicker.${this.props.type}Remove`)}
-                    containerStyle={{ width: 150 }}
-                />);
-            }
-
-            if (this.props.imageButton) {
-                let source;
-
-                if (this.state.values[this.props.name]) {
-                    if (typeof this.state.values[this.props.name] === 'object' && typeof this.state.values[this.props.name].data !== 'undefined') {
-                        source = { uri: this.state.values[this.props.name].data };
-                    } else if (typeof this.state.values[this.props.name] === 'number') {
-                        source = this.state.values[this.props.name];
-                    } else if (typeof this.state.values[this.props.name] === 'string') {
-                        source = { uri: this.state.values[this.props.name] };
-                    }
-                } else if (this.props.url) {
-                    source = { uri: this.props.url };
-                } else {
-                    source = this.props.imageButton;
-                }
-
-                const imageIcon = this.props.imageIcon
-                    ? <Image
-                        key={`image-${this.props.name}-icon`}
-                        source={this.props.imageIcon}
-                        style={styles.imageButtonIconStyle}
-                    />
-                    : null;
-
-                input = (
-                    <View style={this.props.style}>
-                        <View style={styles.imageButtonContainerStyle}>
-                            <TouchableHighlight
-                                style={this.props.touchableHighlightStyle}
-                                underlayColor={'transparent'}
-                                onPress={this.props.type === 'image'
-                                    ? this.createImageChoiceHandler(this.props)
-                                    : this.createVideoChoiceHandler(this.props)
-                                }
-                            >
-                                <View>
-                                    <Image
-                                        key={`image-${this.props.name}`}
-                                        source={source}
-                                        {...this.props.imageOptions}
-                                    />
-                                    {imageIcon}
-                                </View>
-                            </TouchableHighlight>
-                        </View>
-                        <View style={styles.imageButtonContainerStyle}>
-                            {removeButton}
-                        </View>
-                    </View>
-                );
-            } else {
-                input = [
-                    this.state.values[this.props.name] && typeof this.state.values[this.props.name].data !== 'undefined'
-                        ? <Button
-                            containerStyle={styles.buttonRemove}
-                            onPress={this.createResetFieldHandler(this.props)}
-                        >
-                            <View style={styles.previewContainer}>
-                                <View style={styles.previewImageContainer}>
-                                    <Image
-                                        style={styles.previewImage}
-                                        source={{ uri: this.state.values[this.props.name].data }}
-                                        key={`${this.props.name}-preview`}
-                                    />
-                                </View>
-                                <View style={styles.removeText}>
-                                    <Text>{translate(`form.imagePicker.${this.props.type}Remove`)}</Text>
-                                </View>
-                            </View>
-                        </Button>
-                        : null,
-                    <Button
-                        key={`image-${this.props.name}`}
-                        text={this.props.label || this.state.values[this.props.name]
-                            ? translate(`form.imagePicker.${this.props.type}Change`)
-                            : translate(`form.imagePicker.${this.props.type}PickerButtonTitle`)
-                        }
-                        {...this.props.buttonOptions}
-                        onPress={this.props.type === 'image'
-                            ? this.createImageChoiceHandler(this.props)
-                            : this.createVideoChoiceHandler(this.props)
-                        }
-                    />
-                ];
-            }
-        }
+                })}
+            </View>
+        );
 
         return super.render(input);
     }

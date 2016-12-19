@@ -266,11 +266,15 @@ export default class FormTextInput extends Input {
                 secureTextEntry={this.state.secureTextEntry}
                 style={[
                     styles.input,
+                    this.props.customize.FormTextInputStyle,
                     this.props.type === 'textarea'
                         ? styles.textareaInput
                         : null,
                     this.state.error
                         ? styles.error
+                        : null,
+                    this.state.error && this.props.customize.inputContainerErrorStyle
+                        ? this.props.customize.inputContainerErrorStyle
                         : null,
                     this.props.style,
                     this.state.error && this.props.errorStyle
@@ -356,6 +360,7 @@ export default class FormTextInput extends Input {
             <View
                 style={[
                     styles.iconAndInputContainer,
+                    this.props.customize.FormTextInputContainerStyle,
                     this.props.inputContainerStyle,
                 ]}
             >

@@ -26,6 +26,13 @@ export default class FormDateTimeInput extends Input {
         return super.render(
             <DateTimePicker
                 {...this.props}
+                containerStyle={[
+                    this.props.containerStyle,
+                    this.state.error && this.props.customize.inputContainerErrorStyle
+                        ? this.props.customize.inputContainerErrorStyle
+                        : null,
+                    this.props.containerErrorStyle,
+                ]}
                 iosDoneButtonText={this.props.customize.FormDateTimeInputIosDoneButtonText}
                 iosDoneButtonStyle={[
                     this.props.customize.FormDateTimeInputIosDoneButtonStyle,

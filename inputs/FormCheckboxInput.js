@@ -26,6 +26,12 @@ export default class FormCheckboxInput extends Input {
                 checked={this.state.value || this.props.checked}
                 label={this.props.checkboxLabel}
                 ref={this.handleRef}
+                checkboxStyle={[
+                    this.props.checkboxStyle,
+                    this.state.error && this.props.customize.inputContainerErrorStyle
+                        ? this.props.customize.inputContainerErrorStyle
+                        : null,
+                ]}
             />
         );
     }
