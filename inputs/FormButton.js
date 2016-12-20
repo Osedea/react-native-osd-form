@@ -21,7 +21,7 @@ export default class FormButton extends Component {
     static propTypes = {
         component: React.PropTypes.element,
         inputContainerStyle: View.propTypes.style,
-        type: React.PropTypes.oneOf(FormButton.acceptedTypes),
+        type: React.PropTypes.oneOf(this.acceptedTypes),
         ...Button.propTypes,
         onPress: (props, propName, componentName) => {
             if (propName === 'onPress' && props.type !== 'submit' && !props.onPress) {
