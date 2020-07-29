@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/Osedea/react-native-osd-form#readme",
   "dependencies": {
-    "eslint": "~3.4.0",
+    "eslint": "~7.5.0",
     "eslint-config-osedea": "~0.3.9",
     "lodash": "~4.17.2",
     "react-native-checkbox": "1.0.15",
